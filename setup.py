@@ -21,6 +21,8 @@ if os.path.exists("./Examples/Erasmus.gmx"):
     input()
     exit(0)
 else:
+    print("Creating directorys")
+    os.makedirs("./Examples")
     print("Downloading project")
     downloadFile("https://discoveryschoolncl-my.sharepoint.com/personal/callum_thomson_discoveryschool_org_uk/_layouts/15/guestaccess.aspx?guestaccesstoken=34e8%2bQwClzFdFNthH2mmOYkA265giZ5dIqgF%2fV2%2fHfg%3d&docid=0d44e0a7faaa4416da6f15af4ace3e6d3&rev=1", "Examples/Erasmus.tar")
     print("Verifying")
