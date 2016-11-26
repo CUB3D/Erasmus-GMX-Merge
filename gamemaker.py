@@ -2,6 +2,7 @@ import os
 from pprint import pprint
 #Use linux path handling
 import posixpath
+from utils import getTLName
 
 class Script:
     # The name of the script
@@ -10,7 +11,8 @@ class Script:
     content = []
 
     def __init__(self, path, project):
-        self.name = "".join(path.split("\\")[-1:]).replace(".gml", "")
+        #Get the name of the script with no file extension, as this is how the name is stored in the project files
+        self.name = getTLName(path).replace(".gml", "")
         with open(project.expandPath(path), "r") as handle:
             self.content = handle.readlines()
 
@@ -37,29 +39,28 @@ class gameMakerProject:
     rootPath - The location of the root of the project
     '''
     def __init__(self, rootPath):
-        self.rootPath = os.path.abspath(rootPath)
+        self.rootPath = posixpath.abspath(rootPath)
         #Names of the project is the name of the root folder with ".gmx" removed
-        self.projectName = rootPath.split("/")[-1].replace(".gmx", "")
+        self.projectName = getTLName(rootPath).replace(".gmx", "")
 
     '''
     Returns the full path to a file or directory inside of the project
     path - The file to get the path for
     '''
     def expandPath(self, path):
-        a= posixpath.join(self.rootPath, path).replace("\\", "/")
-        pprint(a)
-        return a
+        return posixpath.join(self.rootPath, path).replace("\\\\", "/")
 
     '''
     Returns a list of the names of all objects in the project, This is used to find objects which have names that will
     cause collisions so that they can be renamed before preforming the merge
     '''
     def buildResolutionTable(self):
-        pprint(self.sprites[0])
-        resolutionTable = []  # TODO: Should this be a dict
+        resolutionTable = {
+            "spriteNames": []
+        }
         # Append the names of the players sprites
         for sprite in self.sprites:
-            resolutionTable.append("".join(sprite["filename"].split("/")[-1:]).replace(".sprite.gmx", ""))
+            resolutionTable["spriteNames"].append(getTLName(sprite["filename"]).replace(".sprite.gmx", ""))
         # Append the object names into the sprite
         pprint(resolutionTable)
 

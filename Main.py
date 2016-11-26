@@ -4,7 +4,7 @@ from gamemaker import *
 
 def getXmlDict(file):
     xmlDict = XMLParser(file)
-    pprint(xmlDict)
+    #pprint(xmlDict)
     return xmlDict
 
 def loadConfigFiles(project):
