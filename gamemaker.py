@@ -2,7 +2,7 @@ import os
 from pprint import pprint
 #Use linux path handling
 import posixpath
-from utils import getTLName
+from utils import getTLName, getBaseName
 
 class Script:
     # The name of the script
@@ -60,7 +60,7 @@ class gameMakerProject:
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
-            resolutionTable["spriteNames"].append(getTLName(sprite["filename"]).replace(".sprite.gmx", ""))
+            resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
         # Append the object names into the sprite
         pprint(resolutionTable)
 
