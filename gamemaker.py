@@ -12,7 +12,7 @@ class Script:
 
     def __init__(self, path, project):
         #Get the name of the script with no file extension, as this is how the name is stored in the project files
-        self.name = getTLName(path).replace(".gml", "")
+        self.name = getBaseName(getTLName(path))
         with open(project.expandPath(path), "r") as handle:
             self.content = handle.readlines()
 
@@ -41,7 +41,7 @@ class gameMakerProject:
     def __init__(self, rootPath):
         self.rootPath = posixpath.abspath(rootPath)
         #Names of the project is the name of the root folder with ".gmx" removed
-        self.projectName = getTLName(rootPath).replace(".gmx", "")
+        self.projectName = getBaseName(getTLName(rootPath))
 
     '''
     Returns the full path to a file or directory inside of the project
