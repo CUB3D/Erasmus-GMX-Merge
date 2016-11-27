@@ -35,10 +35,10 @@ class gameMakerProject:
     # List of all of the sprites in the project
     sprites = []
 
-    '''
-    rootPath - The location of the root of the project
-    '''
     def __init__(self, rootPath):
+        """
+        :param rootPath: The location of the root of the project
+        """
         self.rootPath = posixpath.abspath(rootPath)
         #Names of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
@@ -48,6 +48,12 @@ class gameMakerProject:
     path - The file to get the path for
     '''
     def expandPath(self, path):
+        """
+        Returns the full path to a file or directory inside of the project structure
+
+        :param path: The relative path to a file in the project
+        :return: The full path to the file
+        """
         return posixpath.join(self.rootPath, path).replace("\\\\", "/")
 
     '''
@@ -69,4 +75,9 @@ class gameMakerProject:
     name - The key to return
     '''
     def __getitem__(self, name):
+        """
+        Override for dictionary access that will redirect project[name] to project.project[name]
+        :param name:
+        :return:
+        """
         return self.project[name]
