@@ -15,9 +15,13 @@ def loadConfigFiles(project):
 
 def loadObjectFiles(project):
     for child in project["objects"]["children"]:
-        print(child["name"])
-        configPath = project.expandPath(child["content"]) + ".object.gmx"
-        print("Loading path:", configPath)
+        if child["name"] != "object":#a quick get around for if the data is split into sub groups
+            for Baby in child["children"]:#iterates through all the children of the children
+                configPath = project.expandPath(Baby["content"]) + ".object.gmx"
+                print("Loading path:", configPath)
+        else:
+            configPath = project.expandPath(child["content"]) + ".object.gmx"
+            print("Loading path:", configPath)
         project.objects.append(getXmlDict(configPath))
 
 def loadScriptFiles(project):
@@ -25,7 +29,6 @@ def loadScriptFiles(project):
         configPath = project.expandPath(child["content"]) + ".gml"
         print("Loading path:", configPath)
         project.scripts.append(Script(child["content"], project))
-
 def loadRoomFiles(project):
     for child in project["rooms"]["children"]:
         configPath = project.expandPath(child["content"]) + ".room.gmx"
