@@ -43,10 +43,6 @@ class gameMakerProject:
         #Names of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
 
-    '''
-    Returns the full path to a file or directory inside of the project
-    path - The file to get the path for
-    '''
     def expandPath(self, path):
         """
         Returns the full path to a file or directory inside of the project structure
@@ -56,11 +52,13 @@ class gameMakerProject:
         """
         return posixpath.join(self.rootPath, path).replace("\\\\", "/")
 
-    '''
-    Returns a list of the names of all objects in the project, This is used to find objects which have names that will
-    cause collisions so that they can be renamed before preforming the merge
-    '''
     def buildResolutionTable(self):
+        """
+        Retuns a listg of the names of all objects in the project, This is used to find objects which have names that will cause collisions
+        so that whey can be renamed before preforming the mergei
+
+        :return: A list of all of the names of every named object in the project
+        """
         resolutionTable = {
             "spriteNames": []
         }
@@ -77,7 +75,7 @@ class gameMakerProject:
     def __getitem__(self, name):
         """
         Override for dictionary access that will redirect project[name] to project.project[name]
-        :param name:
-        :return:
+        :param name: The name of the key in project.project[name]
+        :return: The element at project.project[name]
         """
         return self.project[name]
