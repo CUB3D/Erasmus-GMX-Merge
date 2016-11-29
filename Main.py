@@ -53,6 +53,6 @@ def parseProjectData(file):
     loadSpriteFiles(project)
     project.buildResolutionTable()
     return project
-project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Eramus in the example
+project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 input()#hang
