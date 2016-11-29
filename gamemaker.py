@@ -60,12 +60,15 @@ class gameMakerProject:
         :return: A list of all of the names of every named object in the project
         """
         resolutionTable = {
-            "spriteNames": []
+            "spriteNames": [],
+            "ObjectNames":[]
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
             resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
         # Append the object names into the sprite
+        #for Object in self.objects:
+            #resolutionTable["ObjectNames"].append(getBaseName(getTLName(Object["filename"])))
         pprint(resolutionTable)
 
     def __getitem__(self, name):

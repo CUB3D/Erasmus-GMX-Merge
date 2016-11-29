@@ -9,12 +9,13 @@ def getXmlDict(file):
 
 def loadConfigFiles(project):
     for child in project["Configs"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".config.gmx"
+        configPath = project.expandPath(child["content"]) + ".config.gmx" # expands the path
         print("Loading path:", configPath)
-        project.configs.append(getXmlDict(configPath))
+        project.configs.append(getXmlDict(configPath)) #appends all the returned config files in the directory
 
 def loadObjectFiles(project):
     for child in project["objects"]["children"]:
+        print(child["name"])
         configPath = project.expandPath(child["content"]) + ".object.gmx"
         print("Loading path:", configPath)
         project.objects.append(getXmlDict(configPath))
@@ -38,10 +39,10 @@ def loadSpriteFiles(project):
         project.sprites.append(getXmlDict(configPath))
 
 def parseProjectData(file):
-    project = gameMakerProject(file)
-    project.project = getXmlDict(project.expandPath(project.projectName + ".project.gmx"))
+    project = gameMakerProject(file)#Create an instance of the game maker project type using the passed file location as the root
+    project.project = getXmlDict(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
     print("Loading and parsing config")
-    loadConfigFiles(project)
+    loadConfigFiles(project)#call config load
     print("Loading object files")
     loadObjectFiles(project)
     print("Parsing scripts")
@@ -51,5 +52,7 @@ def parseProjectData(file):
     print("Loading sprite data")
     loadSpriteFiles(project)
     project.buildResolutionTable()
-
-parseProjectData("./Examples/Erasmus.gmx")
+    return project
+project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Eramus in the example
+project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
+input()#hang
