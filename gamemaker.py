@@ -68,10 +68,6 @@ class gameMakerProject:
         # Append the object names into the sprite
         pprint(resolutionTable)
 
-    '''
-    Override for dictionary access that will redirect project[name] to project.project[name]
-    name - The key to return
-    '''
     def __getitem__(self, name):
         """
         Override for dictionary access that will redirect project[name] to project.project[name]
