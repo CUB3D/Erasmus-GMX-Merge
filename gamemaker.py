@@ -61,11 +61,14 @@ class gameMakerProject:
         """
         resolutionTable = {
             "spriteNames": [],
-            "ObjectNames":[]
+            "objectNames":[]
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
             resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
+
+        for object in self.objects:
+            resolutionTable["objectNames"].append(getBaseName(getTLName(object["filename"])))
         pprint(resolutionTable)
 
     def __getitem__(self, name):
