@@ -50,7 +50,7 @@ class gameMakerProject:
         :param path: The relative path to a file in the project
         :return: The full path to the file
         """
-        return posixpath.join(self.rootPath, path).replace("\\\\", "/")
+        return posixpath.join(self.rootPath, path).replace("\\", "/")
 
     def buildResolutionTable(self):
         """
@@ -61,7 +61,8 @@ class gameMakerProject:
         """
         resolutionTable = {
             "spriteNames": [],
-            "objectNames":[]
+            "objectNames":[],
+            "roomNames":[]
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
@@ -69,6 +70,10 @@ class gameMakerProject:
 
         for object in self.objects:
             resolutionTable["objectNames"].append(getBaseName(getTLName(object["filename"])))
+
+        for room in self.rooms:
+            resolutionTable["roomNames"].append(getBaseName(getTLName(room["filename"])))
+
         pprint(resolutionTable)
 
     def __getitem__(self, name):
