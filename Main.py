@@ -7,6 +7,16 @@ def getXmlDict(file):
     #pprint(xmlDict)
     return xmlDict
 
+def recursiveFileLoading(child, project, ending):
+    tempStorage = []
+    for baby in child["children"]:
+        print("BBY: " + baby)
+        path = project.expandPath(baby["content"]) + ending
+        if "children" in baby:
+            tempStorage.extend(recursiveFileLoading(baby, ending))
+        tempStorage.append(getXmlDict(path))
+    return tempStorage
+
 def loadConfigFiles(project):
     """
     Loads the data from the config files into the project
@@ -23,14 +33,13 @@ def loadObjectFiles(project):
     :param project: The project object
     """
     for child in project["objects"]["children"]:
-        if child["name"] != "object":#a quick get around for if the data is split into sub groups
-            for Baby in child["children"]:#iterates through all the children of the children
-                configPath = project.expandPath(Baby["content"]) + ".object.gmx"
-                print("Loading path:", configPath)
-        else:
-            configPath = project.expandPath(child["content"]) + ".object.gmx"
-            print("Loading path:", configPath)
+        configPath = project.expandPath(child["content"]) + ".object.gmx"
+        print("Loading path:", configPath)
         project.objects.append(getXmlDict(configPath))
+        #Check for subdirs
+        if "children" in child:
+            #recursivly scan for objects
+            project.objects.extend(recursiveFileLoading(child, project, ".object.gmx"))
 
 def loadScriptFiles(project):
     """
