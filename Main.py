@@ -71,6 +71,25 @@ def loadSpriteFiles(project):
         print("Loading path:", configPath)
         project.sprites.append(getXmlDict(configPath))
 
+def checkCollision(projects):
+    """
+    Checks through all catagories in the checkCases list to see if there are any copies in all projects in the projects list
+    :param projects: A list of project objects
+    """
+    checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
+    collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
+    for case in checkCases:#iterate through all the cases
+        caseAspects = [] #a list of all the different elements by name, specific to the type 
+        for project in projects: #iterate throug all the projects
+            for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
+                if level not in caseAspects:#check if the level is the the list of stored elements
+                    caseAspects.append(level)#if not append
+                else: #else join the collision to a table to be printed at the end
+                    collisionList.append("Collision at " + project.projectName + " : " + case + " " + level)
+    for x in collisionList:#output all collisions
+        print(x)#returns all name collisions
+    return collisionList #TODO reformat this to use the correct data structure so it can be evaluated at a later date
+
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
@@ -94,4 +113,5 @@ def parseProjectData(file):
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
+checkCollision([project1,project2])
 input()#hang

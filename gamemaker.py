@@ -59,7 +59,7 @@ class gameMakerProject:
 
         :return: A list of all of the names of every named object in the project
         """
-        resolutionTable = {
+        self.resolutionTable = {
             "spriteNames": [],
             "objectNames":[],
             "roomNames":[],
@@ -67,19 +67,19 @@ class gameMakerProject:
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
-            resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
+            self.resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
 
         for object in self.objects:
-            resolutionTable["objectNames"].append(getBaseName(getTLName(object["filename"])))
+            self.resolutionTable["objectNames"].append(getBaseName(getTLName(object["filename"])))
 
         for room in self.rooms:
-            resolutionTable["roomNames"].append(getBaseName(getTLName(room["filename"])))
+            self.resolutionTable["roomNames"].append(getBaseName(getTLName(room["filename"])))
 
         for script in self.scripts:
-            resolutionTable["scriptNames"].append(script.name)
+            self.resolutionTable["scriptNames"].append(script.name)
 
-        pprint(resolutionTable)
-
+        pprint(self.resolutionTable)
+        
     def __getitem__(self, name):
         """
         Override for dictionary access that will redirect project[name] to project.project[name]
