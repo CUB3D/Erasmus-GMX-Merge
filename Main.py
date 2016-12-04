@@ -8,12 +8,21 @@ def getXmlDict(file):
     return xmlDict
 
 def recursiveFileLoading(child, project, ending):
+    """
+    Recursively scans a child node to find the names of all items in the tree
+    :param child: The element in the tree that acts as a directory
+    :param project: the project instance
+    :param ending: The file ending of that project file (e.g. ".object.gmx" for object files)
+    :return: A list containing the names of all items in the tree
+    """
+    # Note this function ignores the actual names of the subdirectories which be needed later when the new project is
+    # built (Unless we are just going to ignore them and create a folder for each project's files)
     tempStorage = []
     for baby in child["children"]:
-        print("BBY: " + baby)
         path = project.expandPath(baby["content"]) + ending
-        if "children" in baby:
-            tempStorage.extend(recursiveFileLoading(baby, ending))
+        print("Loading: ", path)
+        if len(child["children"]) > 0:
+            tempStorage.extend(recursiveFileLoading(baby, project, ending))
         tempStorage.append(getXmlDict(path))
     return tempStorage
 
@@ -34,12 +43,15 @@ def loadObjectFiles(project):
     """
     for child in project["objects"]["children"]:
         configPath = project.expandPath(child["content"]) + ".object.gmx"
-        print("Loading path:", configPath)
-        project.objects.append(getXmlDict(configPath))
-        #Check for subdirs
-        if "children" in child:
+        #If the object has children then it has no "useful" content (all whitespace)
+        if len(child["children"]) > 0:
             #recursivly scan for objects
+            print("Found subdir: " + child["attributes"][0][1])
             project.objects.extend(recursiveFileLoading(child, project, ".object.gmx"))
+        else:
+            print("Loading path:", configPath)
+            project.objects.append(getXmlDict(configPath))
+
 
 def loadScriptFiles(project):
     """
