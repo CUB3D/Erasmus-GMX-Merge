@@ -8,7 +8,7 @@ def getXmlDict(file):
     #pprint(xmlDict)
     return xmlDict
 
-def recursiveFileLoading_Impl(child, project, ending):
+def recursiveFileLoading_Impl(child, project, ending, callback):
     """
     Recursively scans a child node to find the names of all items in the tree
     :param child: The element in the tree that acts as a directory
@@ -23,67 +23,70 @@ def recursiveFileLoading_Impl(child, project, ending):
         path = project.expandPath(baby["content"]) + ending
         print("Loading: ", path)
         if len(child["children"]) > 0:
-            tempStorage.extend(recursiveFileLoading_Impl(baby, project, ending))
-        tempStorage.append(getXmlDict(path))
+            tempStorage.extend(recursiveFileLoading_Impl(baby, project, ending, callback))
+        tempStorage.append(callback(path))
     return tempStorage
 
-def recursiveFileLoading(project, dictKey, ending):
+def recursiveFileLoading(project, dictKey, ending, callback):
+    """
+
+    :param project:
+    :param dictKey:
+    :param ending:
+    :param callback:
+    :return:
+    """
     content = []
     for child in project[dictKey]["children"]:
         configPath = project.expandPath(child["content"]) + ending
-        # If the element has children then it has no "userful" content (All whitespace)
+        # If the element has children then it has no "useful" content (All whitespace)
         if len(child["children"]) > 0:
             #recursive scan
             print("Found subdir:", child["attributes"][0][1])
-            content.extend(recursiveFileLoading_Impl(child, project, ending))
+            content.extend(recursiveFileLoading_Impl(child, project, ending, callback))
         else:
             print("Loading path:", configPath)
-            content.append(getXmlDict(configPath))
+            content.append(callback(configPath))
     return content
+
+def XMLGeneratorCallback(path):
+    return getXmlDict(path)
+
 
 def loadConfigFiles(project):
     """
     Loads the data from the config files into the project
     :param project: The project object
     """
-    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx")
+    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
 
 def loadObjectFiles(project):
     """
     Loads the data from the object files into the project
     :param project: The project object
     """
-    project.objects = recursiveFileLoading(project, "objects", ".object.gmx")
+    project.objects = recursiveFileLoading(project, "objects", ".object.gmx", XMLGeneratorCallback)
 
 def loadScriptFiles(project):
     """
     Loads the data from the scripts into a list of script objects in the project
     :param project: The project object
     """
-    for child in project["scripts"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".gml"
-        print("Loading path:", configPath)
-        project.scripts.append(Script(child["content"], project))
+    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path, project))
 
 def loadRoomFiles(project):
     """
     Loads the data from the room files into the project
     :param project: The project object
     """
-    for child in project["rooms"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".room.gmx"
-        print("Loading path:", configPath)
-        project.rooms.append(getXmlDict(configPath))
+    project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
 
 def loadSpriteFiles(project):
     """
     Loads sprite data from the sprite files into the project
     :param project: The project object
     """
-    for child in project["sprites"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".sprite.gmx"
-        print("Loading path:", configPath)
-        project.sprites.append(getXmlDict(configPath))
+    project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
 
 def checkCollision(projects):
     """

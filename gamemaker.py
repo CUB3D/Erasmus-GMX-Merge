@@ -13,7 +13,7 @@ class Script:
     def __init__(self, path, project):
         #Get the name of the script with no file extension, as this is how the name is stored in the project files
         self.name = getBaseName(getTLName(path))
-        with open(project.expandPath(path), "r") as handle:
+        with open(path, "r") as handle:
             self.content = handle.readlines()
 
 
