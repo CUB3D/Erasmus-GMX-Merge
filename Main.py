@@ -2,12 +2,13 @@ from pprint import pprint
 from xmlstuff import XMLParser
 from gamemaker import *
 import os
+
 def getXmlDict(file):
     xmlDict = XMLParser(file)
     #pprint(xmlDict)
     return xmlDict
 
-def recursiveFileLoading(child, project, ending):
+def recursiveFileLoading_Impl(child, project, ending):
     """
     Recursively scans a child node to find the names of all items in the tree
     :param child: The element in the tree that acts as a directory
@@ -22,36 +23,37 @@ def recursiveFileLoading(child, project, ending):
         path = project.expandPath(baby["content"]) + ending
         print("Loading: ", path)
         if len(child["children"]) > 0:
-            tempStorage.extend(recursiveFileLoading(baby, project, ending))
+            tempStorage.extend(recursiveFileLoading_Impl(baby, project, ending))
         tempStorage.append(getXmlDict(path))
     return tempStorage
+
+def recursiveFileLoading(project, dictKey, ending):
+    content = []
+    for child in project[dictKey]["children"]:
+        configPath = project.expandPath(child["content"]) + ending
+        # If the element has children then it has no "userful" content (All whitespace)
+        if len(child["children"]) > 0:
+            #recursive scan
+            print("Found subdir:", child["attributes"][0][1])
+            content.extend(recursiveFileLoading_Impl(child, project, ending))
+        else:
+            print("Loading path:", configPath)
+            content.append(getXmlDict(configPath))
+    return content
 
 def loadConfigFiles(project):
     """
     Loads the data from the config files into the project
     :param project: The project object
     """
-    for child in project["Configs"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".config.gmx" # expands the path
-        print("Loading path:", configPath)
-        project.configs.append(getXmlDict(configPath)) #appends all the returned config files in the directory
+    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx")
 
 def loadObjectFiles(project):
     """
     Loads the data from the object files into the project
     :param project: The project object
     """
-    for child in project["objects"]["children"]:
-        configPath = project.expandPath(child["content"]) + ".object.gmx"
-        #If the object has children then it has no "useful" content (all whitespace)
-        if len(child["children"]) > 0:
-            #recursivly scan for objects
-            print("Found subdir: " + child["attributes"][0][1])
-            project.objects.extend(recursiveFileLoading(child, project, ".object.gmx"))
-        else:
-            print("Loading path:", configPath)
-            project.objects.append(getXmlDict(configPath))
-
+    project.objects = recursiveFileLoading(project, "objects", ".object.gmx")
 
 def loadScriptFiles(project):
     """
