@@ -117,17 +117,21 @@ def nameChanger(collisionList,passList):
 
 def createFolderStructure(projects,startDir):
     """
-    A method to generate the folder structure in a new directory
+    A method to generate the folder structure in a new directory, for the final merged project
+    Will create subdirectories for each of the projects being merged
     :param projects: a list of all the different gameMakerProject types
     :param startDir: a location for the new merged project to be located
     """
     cases = ["Configs","objects","Output","rooms","script","sprites"]
-    print("Making start directory")
+    print("Making merge directory")
     os.makedirs(startDir)
     for case in cases:
-        print("Making",case,"directory")
-        os.makedirs(startDir +"/"+case)
-        
+        basePath = os.path.abspath(os.path.join(startDir, case))
+        for project in projects:
+            projectSubDir = os.path.join(basePath, project.projectName) 
+            print("Making", projectSubDir, "directory")
+            os.makedirs(projectSubDir)
+
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
