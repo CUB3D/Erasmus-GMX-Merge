@@ -2,6 +2,7 @@ from pprint import pprint
 from xmlstuff import XMLParser
 from gamemaker import *
 import os
+from shutil import rmtree
 
 def getXmlDict(file):
     xmlDict = XMLParser(file)
@@ -129,6 +130,14 @@ def createFolderStructure(projects,startDir):
     """
     cases = ["Configs","objects","Output","rooms","script","sprites"]
     print("Making merge directory")
+    if os.path.exists(startDir):
+        if input("Output directory already exists, remove? (y/n)").lower() == "y":
+            print("Removing")
+            rmtree(startDir)
+        else:
+            print("Aborting")
+            exit(0)
+
     os.makedirs(startDir)
     for case in cases:
         basePath = os.path.abspath(os.path.join(startDir, case))
