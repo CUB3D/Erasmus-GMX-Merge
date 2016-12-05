@@ -1,7 +1,7 @@
 from pprint import pprint
 from xmlstuff import XMLParser
 from gamemaker import *
-
+import os
 def getXmlDict(file):
     xmlDict = XMLParser(file)
     #pprint(xmlDict)
@@ -90,18 +90,44 @@ def checkCollision(projects):
     """
     checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
     collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
+    passList = []#a list to store all non collisions so all the data can be accessed so it doesnt have to be searched again
     for case in checkCases:#iterate through all the cases
         caseAspects = [] #a list of all the different elements by name, specific to the type 
-        for project in projects: #iterate throug all the projects
+        for project in projects: #iterate through all the projects
             for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
                 if level not in caseAspects:#check if the level is the the list of stored elements
                     caseAspects.append(level)#if not append
+                    passList.append([project.projectName,case,level])
                 else: #else join the collision to a table to be printed at the end
-                    collisionList.append("Collision at " + project.projectName + " : " + case + " " + level)
+                    collisionList.append([project.projectName,case,level])
     for x in collisionList:#output all collisions
-        print(x)#returns all name collisions
-    return collisionList #TODO reformat this to use the correct data structure so it can be evaluated at a later date
+        print("collision at",x[0] + ":",x[1],x[2])#returns all name collisions
+    return collisionList,passList
 
+def nameChanger(collisionList,passList):
+    """
+    A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
+    :param collisionList: a list of all collisions inside the profiles
+    :param passList: a list to of all the elements that didnt collide but simply need to be moved to the correct position.
+    """
+    #NOTE could be able to remove the passList function but change around the order so that the folder structure creation
+    #NOTE takes place first then as the file is being copied it is renamed.
+    for name in collisionList:#change all values in the resolution table that collide
+        pass
+
+def createFolderStructure(projects,startDir):
+    """
+    A method to generate the folder structure in a new directory
+    :param projects: a list of all the different gameMakerProject types
+    :param startDir: a location for the new merged project to be located
+    """
+    cases = ["Configs","objects","Output","rooms","script","sprites"]
+    print("Making start directory")
+    os.makedirs(startDir)
+    for case in cases:
+        print("Making",case,"directory")
+        os.makedirs(startDir +"/"+case)
+        
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
@@ -126,4 +152,5 @@ def parseProjectData(file):
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 checkCollision([project1,project2])
+createFolderStructure([project1,project2],"./Examples/Merge")
 input()#hang
