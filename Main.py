@@ -108,8 +108,6 @@ def checkCollision(projects):
                     passList.append([project.projectName,case,level])
                 else: #else join the collision to a table to be printed at the end
                     collisionList.append([project.projectName,case,level])
-    for x in collisionList:#output all collisions
-        print("collision at",x[0] + ":",x[1],x[2])#returns all name collisions
     return collisionList,passList
 
 def nameChanger(collisionList,passList):
@@ -171,6 +169,7 @@ def parseProjectData(file):
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
-checkCollision([project1,project2])
+for string in checkCollision([project1,project2]):
+    print("Found collision at", string)
 createFolderStructure([project1,project2],"./Examples/Merge")
 input()#hang
