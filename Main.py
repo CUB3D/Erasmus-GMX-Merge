@@ -110,7 +110,7 @@ def checkCollision(projects):
                     collisionList.append([project.projectName,case,level])
     return collisionList,passList
 
-def nameChanger(collisionList,passList):
+def nameChanger(projects,collisionList):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
     :param collisionList: a list of all collisions inside the profiles
@@ -118,9 +118,9 @@ def nameChanger(collisionList,passList):
     """
     #NOTE could be able to remove the passList function but change around the order so that the folder structure creation
     #NOTE takes place first then as the file is being copied it is renamed.
-    for name in collisionList:#change all values in the resolution table that collide
-        pass
-
+    for project in projects:
+        project.correctMistakes(collisionList)
+        
 def createFolderStructure(projects,startDir):
     """
     A method to generate the folder structure in a new directory, for the final merged project
@@ -169,7 +169,9 @@ def parseProjectData(file):
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
-for string in checkCollision([project1,project2]):
+collisionList, passList = checkCollision([project1,project2])
+for string in collisionList:
     print("Found collision at", string)
 createFolderStructure([project1,project2],"./Examples/Merge")
+nameChanger([project1,project2],collisionList)
 input()#hang
