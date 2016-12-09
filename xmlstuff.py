@@ -34,3 +34,11 @@ def XMLParser(file):
         subdict = _XMLGetElementDict(element)
         xmlTagList[subdict["name"]] = subdict
     return xmlTagList
+
+def XMLWriter(file, dict_):
+    """
+    Writes a dictionary to a file in the XML format
+    :param file: The name of the file to write
+    :param dict_: The dictionary to output
+    """
+    pass

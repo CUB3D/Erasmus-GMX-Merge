@@ -108,8 +108,6 @@ def checkCollision(projects):
                     passList.append([project.projectName,case,level])
                 else: #else join the collision to a table to be printed at the end
                     collisionList.append([project.projectName,case,level])
-    for x in collisionList:#output all collisions
-        print("collision at",x[0] + ":",x[1],x[2])#returns all name collisions
     return collisionList,passList
 
 def nameChanger(projects,collisionList):
@@ -143,6 +141,7 @@ def createFolderStructure(projects,startDir):
                     print("Making", projectSubDir, "directory")
                     os.makedirs(projectSubDir)
         else:
+<<<<<<< HEAD
             print("Using prexisting folder")
             
 def renameSprites(projects,baseDir):
@@ -166,6 +165,19 @@ def renameSprites(projects,baseDir):
                         print("unable to copy",project.rootPath + "/sprites/images/"+name+"_"+str(count)+".png This could be that the sprite has no image")
                      #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
                     break
+=======
+            print("Aborting")
+            exit(0)
+
+    os.makedirs(startDir)
+    for case in cases:
+        basePath = os.path.abspath(os.path.join(startDir, case))
+        for project in projects:
+            projectSubDir = os.path.join(basePath, project.projectName) 
+            print("Making", projectSubDir, "directory")
+            os.makedirs(projectSubDir)
+
+>>>>>>> 7004726cd14ec7db19bf58d87874078ee00b037e
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
@@ -189,10 +201,18 @@ def parseProjectData(file):
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
+<<<<<<< HEAD
 projectList = [project1,project2]
 collisionList, passList = checkCollision(projectList)
 createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList,collisionList)
 renameSprites([project1,project2],"./Examples/Merge")
 
+=======
+collisionList, passList = checkCollision([project1,project2])
+for string in collisionList:
+    print("Found collision at", string)
+createFolderStructure([project1,project2],"./Examples/Merge")
+nameChanger([project1,project2],collisionList)
+>>>>>>> 7004726cd14ec7db19bf58d87874078ee00b037e
 input()#hang
