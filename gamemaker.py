@@ -89,7 +89,7 @@ class gameMakerProject:
         }
         for name in collisionList:
             self.renamedFiles[name[1]].append(name[1]+"_"+self.projectName+"_"+name[2])
-            print(name[1]+"_"+self.projectName+"_"+name[2])
+            print("renamed " + name[1]+"_"+self.projectName+"_"+name[2])
     def __getitem__(self, name):
         """
         Override for dictionary access that will redirect project[name] to project.project[name]

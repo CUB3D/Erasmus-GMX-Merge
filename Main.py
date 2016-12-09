@@ -2,7 +2,7 @@ from pprint import pprint
 from xmlstuff import XMLParser
 from gamemaker import *
 import os
-from shutil import rmtree
+from shutil import rmtree,copy2
 
 def getXmlDict(file):
     xmlDict = XMLParser(file)
@@ -118,11 +118,10 @@ def nameChanger(projects,collisionList):
     :param collisionList: a list of all collisions inside the profiles
     :param passList: a list to of all the elements that didnt collide but simply need to be moved to the correct position.
     """
-    #NOTE could be able to remove the passList function but change around the order so that the folder structure creation
-    #NOTE takes place first then as the file is being copied it is renamed.
+    #NOTE we could elect to rename all files
     for project in projects:
         project.correctMistakes(collisionList)
-        
+
 def createFolderStructure(projects,startDir):
     """
     A method to generate the folder structure in a new directory, for the final merged project
@@ -136,17 +135,37 @@ def createFolderStructure(projects,startDir):
         if input("Output directory already exists, remove? (y/n)").lower() == "y":
             print("Removing")
             rmtree(startDir)
+            os.makedirs(startDir)
+            for case in cases:
+                basePath = os.path.abspath(os.path.join(startDir, case))
+                for project in projects:
+                    projectSubDir = os.path.join(basePath, project.projectName) 
+                    print("Making", projectSubDir, "directory")
+                    os.makedirs(projectSubDir)
         else:
-            print("Aborting")
-
-    os.makedirs(startDir)
-    for case in cases:
-        basePath = os.path.abspath(os.path.join(startDir, case))
-        for project in projects:
-            projectSubDir = os.path.join(basePath, project.projectName) 
-            print("Making", projectSubDir, "directory")
-            os.makedirs(projectSubDir)
-
+            print("Using prexisting folder")
+            
+def renameSprites(projects,baseDir):
+    for project in projects: #iterates through all projects
+        if not os.path.exists(baseDir +"/sprites/"+project.projectName+"/images/"):
+            print("going in path")
+            os.makedirs(baseDir +"/sprites/"+project.projectName+"/images/")
+        print("working in",project.projectName)
+        for sprite in project.resolutionTable["spriteNames"]:
+            name = sprite.split(project.projectName)[-1]#split for last underscore
+            print("copying",project.projectName,sprite)
+            count = 0
+            while True:
+                try:
+                    src =( project.rootPath + "/sprites/images/"+name+"_"+str(count)+".png" )
+                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+sprite+"_"+str(count)+".png")
+                    copy2(src,cp)
+                    count += 1
+                except:
+                    if count == 0: #if the program wasnt event able to copy one file it means the image isnt in the desired location
+                        print("unable to copy",project.rootPath + "/sprites/images/"+name+"_"+str(count)+".png This could be that the sprite has no image")
+                     #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
+                    break
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
@@ -170,7 +189,10 @@ def parseProjectData(file):
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
-collisionList, passList = checkCollision([project1,project2])
-#createFolderStructure([project1,project2],"./Examples/Merge")
-nameChanger([project1,project2],collisionList)
+projectList = [project1,project2]
+collisionList, passList = checkCollision(projectList)
+createFolderStructure([project1,project2],"./Examples/Merge")
+nameChanger(projectList,collisionList)
+renameSprites([project1,project2],"./Examples/Merge")
+
 input()#hang
