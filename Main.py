@@ -1,8 +1,8 @@
-from pprint import pprint
-from xmlstuff import XMLParser
-from gamemaker import *
-import os
 from shutil import rmtree,copy2
+
+from gamemaker import *
+from xmlstuff import XMLParser, XMLWriter
+
 
 def getXmlDict(file):
     xmlDict = XMLParser(file)
@@ -187,6 +187,43 @@ def parseProjectData(file):
     project.buildResolutionTable()
     return project
 
+def generateNewProjectFiles(project, path):
+    """
+    Generates all of the XML files required by a project
+
+    :param project: The project to generate files for
+    :param path:
+    """
+    newName = os.path.join(path, getTLName(path) + ".project.gmx")
+    print("New project name:", newName)
+
+    #TODO: rename
+    dict_ = [
+        ["Configs", "name=configs", [
+            ["Config", "Configs\Default"]
+        ]],
+        ["NewExtensions", ""],
+        ["sounds", "name=sound", ""],
+    ]
+
+    spriteData = []
+    for sprite in project.resolutionTable["spriteNames"]:
+        name = sprite
+        for x in project.renamedFiles["spriteNames"]:
+            if x[1] == sprite:
+                name = x[0]
+        spriteData.append(["sprite", os.path.join("sprites", project.projectName, name)])
+
+    dict_.append(["sprites", "name=sprites", spriteData])
+
+    print(dict_)
+
+    for x in project.renamedFiles:
+        for y in project.renamedFiles[x]:
+            print("X:", y)
+
+    XMLWriter(newName, dict_, "assets")
+
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 projectList = [project1,project2]
@@ -194,4 +231,5 @@ collisionList, passList = checkCollision(projectList)
 createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList,collisionList)
 renameSprites([project1,project2],"./Examples/Merge")
+generateNewProjectFiles(project1, "./Examples/Merge")
 input()#hang

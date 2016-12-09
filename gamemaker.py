@@ -34,6 +34,10 @@ class gameMakerProject:
     rooms = []
     # List of all of the sprites in the project
     sprites = []
+    # Dictionary containing all of the changed names of items in the project
+    renamedFiles = []
+    # Table containing the names of all elements of the project
+    resolutionTable = []
 
     def __init__(self, rootPath):
         """
@@ -54,7 +58,7 @@ class gameMakerProject:
 
     def buildResolutionTable(self):
         """
-        Retuns a listg of the names of all objects in the project, This is used to find objects which have names that will cause collisions
+        Retuns a list of the names of all objects in the project, This is used to find objects which have names that will cause collisions
         so that whey can be renamed before preforming the mergei
 
         :return: A list of all of the names of every named object in the project
@@ -88,8 +92,8 @@ class gameMakerProject:
             "scriptNames":[]
         }
         for name in collisionList:
-            self.renamedFiles[name[1]].append(name[1]+"_"+self.projectName+"_"+name[2])
-            print("renamed " + name[1]+"_"+self.projectName+"_"+name[2])
+            self.renamedFiles[name[1]].append((name[1][:3]+"_"+self.projectName+"_"+name[2], name[2]))
+            print("renamed", name[2], "to", name[1][:3]+"_"+self.projectName+"_"+name[2])
 
     def __getitem__(self, name):
         """
