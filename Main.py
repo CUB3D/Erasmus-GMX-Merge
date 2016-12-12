@@ -93,7 +93,7 @@ def loadSpriteFiles(project):
 
 def checkCollision(projects):
     """
-    Checks through all catagories in the checkCases list to see if there are any copies in all projects in the projects list
+    Checks through all categories in the checkCases list to see if there are any copies in all projects in the projects list
     :param projects: A list of project objects
     """
     checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
@@ -113,8 +113,8 @@ def checkCollision(projects):
 def nameChanger(projects,collisionList):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
+    :param projects: a list of all projects to be compiled
     :param collisionList: a list of all collisions inside the profiles
-    :param passList: a list to of all the elements that didnt collide but simply need to be moved to the correct position.
     """
     #NOTE we could elect to rename all files
     for project in projects:
