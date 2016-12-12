@@ -187,12 +187,30 @@ def parseProjectData(file):
     project.buildResolutionTable()
     return project
 
+def getRenameTable(project, key, tagName, pathbase):
+    """
+    Builds a table of all the names of each object after the rename operation
+    :param project:
+    :param key:
+    :param tagName:
+    :return:
+    """
+    data = []
+    for object_ in project.resolutionTable[key]:
+        name = object_
+        for renamedFile in project.renamedFiles[key]:
+            if renamedFile[1] == name:
+                name = renamedFile[0]
+        data.append([tagName, os.path.join(pathbase, project.projectName, name)])
+    return data
+
+
 def generateNewProjectFiles(project, path):
     """
     Generates all of the XML files required by a project
 
     :param project: The project to generate files for
-    :param path:
+    :param path: The path to the new root directory of the project
     """
     newName = os.path.join(path, getTLName(path) + ".project.gmx")
     print("New project name:", newName)
@@ -206,13 +224,7 @@ def generateNewProjectFiles(project, path):
         ["sounds", "name=sound", ""],
     ]
 
-    spriteData = []
-    for sprite in project.resolutionTable["spriteNames"]:
-        name = sprite
-        for x in project.renamedFiles["spriteNames"]:
-            if x[1] == sprite:
-                name = x[0]
-        spriteData.append(["sprite", os.path.join("sprites", project.projectName, name)])
+    spriteData = getRenameTable(project, "spriteNames", "sprite", "sprites")
 
     dict_.append(["sprites", "name=sprites", spriteData])
 
