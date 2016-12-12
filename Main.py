@@ -151,18 +151,23 @@ def renameSprites(projects,baseDir):
             os.makedirs(baseDir +"/sprites/"+project.projectName+"/images/")
         print("working in",project.projectName)
         for sprite in project.resolutionTable["spriteNames"]:
-            name = sprite.split(project.projectName)[-1]#split for last underscore
-            print("copying",project.projectName,sprite)
+            renamedSprites = project.renamedFiles["spriteNames"]
+            #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
             count = 0
+            for tup in renamedSprites:#iterates through all sprites in the renamed files list it checks if the element is in the list
+                if sprite in tup: #if the element is in the collision list it will elect to use that
+                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+tup[0]+"_"+str(count)+".png")
+                    sprite = tup[1]
+                else:
+                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+sprite+"_"+str(count)+".png")
             while True:
                 try:
-                    src =( project.rootPath + "/sprites/images/"+name+"_"+str(count)+".png" )
-                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+sprite+"_"+str(count)+".png")
+                    src =(project.rootPath + "/sprites/images/"+sprite+"_"+str(count)+".png")
                     copy2(src,cp)
                     count += 1
                 except:
                     if count == 0: #if the program wasnt event able to copy one file it means the image isnt in the desired location
-                        print("unable to copy",project.rootPath + "/sprites/images/"+name+"_"+str(count)+".png This could be that the sprite has no image")
+                        print("unable to copy",project.rootPath + "/sprites/images/"+sprite+"_"+str(count)+".png This could be that the sprite has no image")
                      #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
                     break
 
@@ -236,6 +241,15 @@ def generateNewProjectFiles(project, path):
 
     XMLWriter(newName, dict_, "assets")
 
+def spriteWriter(project,path):
+    for sprite in project.resolutionTable["spriteNames"]:
+        ###parse the xml###
+        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite +".sprite.gmx")
+        activeDict["frames"]["children"][0]["content"] = "spr_" + project.projectName + "_" + sprite +"_0.png" #NOTE this will have to use the resolutiontable
+        #NOTE convert resolution table to turple
+        newfile = path + sprite +".sprite.gmx"
+        XMLWriter(newfile,activeDict,"sprite")
+        
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 projectList = [project1,project2]
@@ -244,4 +258,5 @@ createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList,collisionList)
 renameSprites([project1,project2],"./Examples/Merge")
 generateNewProjectFiles(project1, "./Examples/Merge")
+spriteWriter(project1,"./")
 input()#hang
