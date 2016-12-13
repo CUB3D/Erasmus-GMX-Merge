@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ElementTree
+from pprint import pprint
 
 def _XMLGetElementDict(element):
     name = element.tag
@@ -55,6 +56,43 @@ def __XMLWriter(data, rootobj, depth=1, indent="    "):
             subElement.tail = "\n" + (indent * depth if depth > 1 else "")
             subElement.text = data
             subElement.attrib = arguments
+
+def parseAttributes(attributeData):
+    attributes = {}
+    return attributes
+
+def NXMLWriter(file, data, rootname):
+    root = ElementTree.Element(rootname)
+    root.tail = "\n"
+    root.text = "\n"
+    __NXMLWriter(data, root)
+    tree = ElementTree.ElementTree(root)
+    tree.write(file, xml_declaration=True, encoding="utf-8")
+
+def __NXMLWriter(data, rootobj, depth=1, indent="    "):
+    pprint(data)
+    for key in data:
+        #TODO Temporary
+        if key == "filename":
+            continue
+        subData = data[key]
+        if not "children" in subData:
+            continue
+        print("SubData:", subData)
+        if len(subData["children"]) > 0:
+            rootobj.text = "\n" + indent * depth
+            subElement = ElementTree.SubElement(rootobj, subData["name"])
+            subElement.tail = "\n" + (indent * depth)
+            subElement.text = "\n" + (indent * (depth + 1))
+            subElement.attrib = parseAttributes(subData["attributes"])
+            for child in subData["children"]:
+                __NXMLWriter(child, subElement, depth+1, indent)
+        else:
+            subElement = ElementTree.SubElement(rootobj, subData["name"])
+            subElement.tail = "\n" + (indent * depth if depth > 1 else "")
+            subElement.text = subData["content"]
+            subElement.attrib = parseAttributes(subData["attributes"])
+
 
 def XMLWriter(file, dict_, rootname):
     """
