@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+    <colkind>1</colkind>
+<yorigin>10</yorigin>
+<bbox_right>99</bbox_right>
+<bbox_top>0</bbox_top>
+<height>20</height>
+<width>100</width>
+<frames>
+        </frames>
+    <bbox_bottom>19</bbox_bottom>
+<sepmasks>0</sepmasks>
+<xorig>50</xorig>
+<bbox_left>0</bbox_left>
+<type>0</type>
+<VTile>0</VTile>
+<TextureGroups>
+        </TextureGroups>
+    <coltolerance>0</coltolerance>
+<bboxmode>0</bboxmode>
+<For3D>0</For3D>
+<HTile>0</HTile>
+</root>

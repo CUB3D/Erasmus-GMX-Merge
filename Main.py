@@ -1,7 +1,7 @@
 from shutil import rmtree,copy2
 
 from gamemaker import *
-from xmlstuff import XMLParser, XMLWriter
+from xmlstuff import XMLParser, XMLWriter, NXMLWriter
 
 
 def getXmlDict(file):
@@ -242,6 +242,11 @@ def generateNewProjectFiles(project, path):
     XMLWriter(newName, dict_, "assets")
 
 def spriteWriter(project,path):
+    print("TEST")
+    xml = project.sprites[0]
+    NXMLWriter("Test.xml", xml, "root")
+    exit(-1)
+
     for sprite in project.resolutionTable["spriteNames"]:
         ###parse the xml###
         activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite +".sprite.gmx")
