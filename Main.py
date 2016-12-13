@@ -153,7 +153,7 @@ def renameSpriteImages(projects,baseDir):
             count = 0
             while True:
                 try:
-                    cp = (baseDir + "/sprites/" + project.projectName + "/images/" + sprite[1] + "_" + str(count) + ".png")
+                    cp = (baseDir + "/sprites/" + project.projectName + "/images/" + sprite[0] + "_" + str(count) + ".png")
                     src =(project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png")
                     copy2(src,cp)
                     count += 1
