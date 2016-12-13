@@ -91,35 +91,33 @@ def loadSpriteFiles(project):
     """
     project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
 
-def checkCollision(projects):
-    """
-    Checks through all categories in the checkCases list to see if there are any copies in all projects in the projects list
-    :param projects: A list of project objects
-    """
-    checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
-    collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
-    passList = []#a list to store all non collisions so all the data can be accessed so it doesnt have to be searched again
-    for case in checkCases:#iterate through all the cases
-        caseAspects = [] #a list of all the different elements by name, specific to the type 
-        for project in projects: #iterate through all the projects
-            for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
-                if level not in caseAspects:#check if the level is the the list of stored elements
-                    caseAspects.append(level)#if not append
-                    passList.append([project.projectName,case,level])
-                else: #else join the collision to a table to be printed at the end
-                    collisionList.append([project.projectName,case,level])
-    return collisionList,passList
+# ##def checkCollision(projects):
+#     """
+#     Checks through all categories in the checkCases list to see if there are any copies in all projects in the projects list
+#     :param projects: A list of project objects
+#     """
+#     checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
+#     collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
+#     passList = []#a list to store all non collisions so all the data can be accessed so it doesnt have to be searched again
+#     for case in checkCases:#iterate through all the cases
+#         caseAspects = [] #a list of all the different elements by name, specific to the type
+#         for project in projects: #iterate through all the projects
+#             for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
+#                 if level not in caseAspects:#check if the level is the the list of stored elements
+#                     caseAspects.append(level)#if not append
+#                     passList.append([project.projectName,case,level])
+#                 else: #else join the collision to a table to be printed at the end
+#                     collisionList.append([project.projectName,case,level])
+#     return collisionList,passList
 
-def nameChanger(projects,collisionList):
+def nameChanger(projects):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
     :param projects: a list of all projects to be compiled
-    :param collisionList: a list of all collisions inside the profiles
     """
     #NOTE we could elect to rename all files
     for project in projects:
-        project.correctMistakes(collisionList)
-
+        project.correctMistakes() #changes all objects to turples
 def createFolderStructure(projects,startDir):
     """
     A method to generate the folder structure in a new directory, for the final merged project
@@ -144,32 +142,27 @@ def createFolderStructure(projects,startDir):
             print("Aborting")
             exit(0)
             
-def renameSprites(projects,baseDir):
+def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
         if not os.path.exists(baseDir +"/sprites/"+project.projectName+"/images/"):
             print("going in path")
             os.makedirs(baseDir +"/sprites/"+project.projectName+"/images/")
         print("working in",project.projectName)
-        for sprite in project.resolutionTable["spriteNames"]:
-            renamedSprites = project.renamedFiles["spriteNames"]
+        for sprite in project.renamedFiles["spriteNames"]:
             #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
             count = 0
-            for tup in renamedSprites:#iterates through all sprites in the renamed files list it checks if the element is in the list
-                if sprite in tup: #if the element is in the collision list it will elect to use that
-                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+tup[0]+"_"+str(count)+".png")
-                    sprite = tup[1]
-                else:
-                    cp = (baseDir +"/sprites/"+project.projectName+"/images/"+sprite+"_"+str(count)+".png")
             while True:
                 try:
-                    src =(project.rootPath + "/sprites/images/"+sprite+"_"+str(count)+".png")
+                    cp = (baseDir + "/sprites/" + project.projectName + "/images/" + sprite[1] + "_" + str(count) + ".png")
+                    src =(project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png")
                     copy2(src,cp)
                     count += 1
-                except:
+                except :
                     if count == 0: #if the program wasnt event able to copy one file it means the image isnt in the desired location
-                        print("unable to copy",project.rootPath + "/sprites/images/"+sprite+"_"+str(count)+".png This could be that the sprite has no image")
+                        print("unable to copy",project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png This could be that the sprite has no image")
                      #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
                     break
+                    print("got here")
 
 def parseProjectData(file):
     """
@@ -203,17 +196,13 @@ def getRenameTable(project, key, tagName, pathbase):
     data = []
     for object_ in project.resolutionTable[key]:
         name = object_
-        for renamedFile in project.renamedFiles[key]:
-            if renamedFile[1] == name:
-                name = renamedFile[0]
-        data.append([tagName, os.path.join(pathbase, project.projectName, name)])
+        data.append([tagName, os.path.join(pathbase, project.projectName, name[0])])
     return data
 
 
 def generateNewProjectFiles(project, path):
     """
     Generates all of the XML files required by a project
-
     :param project: The project to generate files for
     :param path: The path to the new root directory of the project
     """
@@ -252,16 +241,17 @@ def spriteWriter(project,path):
         activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite +".sprite.gmx")
         activeDict["frames"]["children"][0]["content"] = "spr_" + project.projectName + "_" + sprite +"_0.png" #NOTE this will have to use the resolutiontable
         #NOTE convert resolution table to turple
-        newfile = path + sprite +".sprite.gmx"
-        XMLWriter(newfile,activeDict,"sprite")
+        newFile = path + sprite +".sprite.gmx"
+        XMLWriter(newFile,activeDict,"sprite")
         
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 projectList = [project1,project2]
-collisionList, passList = checkCollision(projectList)
+#collisionList, passList = checkCollision(projectList)
 createFolderStructure([project1,project2],"./Examples/Merge")
-nameChanger(projectList,collisionList)
-renameSprites([project1,project2],"./Examples/Merge")
+nameChanger(projectList)
+renameSpriteImages([project1,project2],"./Examples/Merge")
 generateNewProjectFiles(project1, "./Examples/Merge")
-spriteWriter(project1,"./")
+#spriteWriter(project1,"./")
+print("finiš")
 input()#hang
