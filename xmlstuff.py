@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ElementTree
-from _cffi_backend import typeof
 from pprint import pprint
 
 def _XMLGetElementDict(element):
