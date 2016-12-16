@@ -162,7 +162,7 @@ def renameSpriteImages(projects,baseDir):
                         print("unable to copy",project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png This could be that the sprite has no image")
                      #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
                     break
-                    print("got here")
+            project.renamedFiles["spriteNames"][project.renamedFiles["spriteNames"].index(sprite)] += (count,)
 
 def parseProjectData(file):
     """
@@ -234,8 +234,12 @@ def spriteWriter(project,path):
     for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
         print(project.rootPath+"/sprites/"+sprite[1] +".sprite.gmx")
-        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original 
-        activeDict["frames"]["children"][0]["content"] = "images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original
+        print(sprite[2])
+        if sprite[2] != 0:
+            activeDict["frames"]["children"][0]["content"] = "images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+            for frame in range(1,sprite[2] -1):
+                activeDict["frames"]["children"][frame]["content"] = "images\\" + sprite[0]+"_"+str(frame)+".png" # appends a new frame
         newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
         print(newFile)
         NXMLWriter(newFile,activeDict,"sprite")
@@ -248,6 +252,7 @@ createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList)
 renameSpriteImages([project1,project2],"./Examples/Merge")
 generateNewProjectFiles(project1, "./Examples/Merge")
-spriteWriter(project1,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")
+spriteWriter(project1,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")#need to improve drive references
+spriteWriter(project2,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")
 print("finished")
 input()#hang
