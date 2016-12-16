@@ -77,19 +77,20 @@ def NXMLWriter(file, data, rootname):
 
 def __NXMLWriter(data, rootobj, depth=1, indent="    "):
 
-    if type(data) == dict and len(data["children"]) > 0:
+    if type(data) == dict and "children" in data and len(data["children"]) > 0:
         rootobj.text = "\n" + indent * depth
         subElement = ElementTree.SubElement(rootobj, data["name"])
         subElement.tail = "\n" + (indent * depth)
         subElement.text = "\n" + (indent * (depth + 1))
         subElement.attrib = parseAttributes(data["attributes"])
-        __NXMLWriter(data["children"], subElement, depth + 1, indent)
+        for child in data["children"]:
+            __NXMLWriter(child, subElement, depth + 1, indent)
     else:
         temp = data[0] if type(data) == list else data
         subElement = ElementTree.SubElement(rootobj, temp["name"])
         subElement.tail = "\n" + (indent * depth if depth > 1 else "")
-        subElement.text = temp["content"]
-        subElement.attrib = parseAttributes(temp["attributes"])
+        subElement.text = temp["content"] if "content" in temp else ""
+        subElement.attrib = parseAttributes(temp["attributes"]) if "attributes" in temp else {}
 
 
 def XMLWriter(file, dict_, rootname):

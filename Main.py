@@ -219,11 +219,25 @@ def generateNewProjectFiles(project, path):
         ["sounds", "name=sound", ""],
     ]
 
-    spriteData = getRenameTable(project, "spriteNames", "sprite", "sprites")
+    dict_ = {}
 
-    dict_.append(["sprites", "name=sprites", spriteData])
+    dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "content": "Configs\Default"}
+    dict_["NewExtensions"] = {"name": "NewExtensions"}
+    dict_["sounds"] = {"name": "sounds", "content": "", "attributes": [("name", "sound")]}
+    dict_["sprites"] = {"name": "sprites", "content": "", "attributes": [("name", "sprites")], "children": []}
 
-    XMLWriter(newName, dict_, "assets")
+    baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
+
+    for file in os.listdir(baseSpriteDirectory):
+        if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
+
+            relativePath = "sprites/" + project.projectName + "/" + getBaseName(file)
+            newDict = {"name": "sprite", "content": relativePath}
+            dict_["sprites"]["children"].append(newDict)
+
+    pprint(dict_)
+
+    NXMLWriter(newName, dict_, "assets")
 
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
