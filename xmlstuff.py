@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ElementTree
-from _cffi_backend import typeof
 from pprint import pprint
 
 def _XMLGetElementDict(element):
@@ -66,9 +65,6 @@ def parseAttributes(attributeData):
     return attributes
 
 def NXMLWriter(file, data, rootname):
-    print("START IN")
-    pprint(data)
-    print("END IN")
     root = ElementTree.Element(rootname)
     root.tail = "\n"
     root.text = "\n"

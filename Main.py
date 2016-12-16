@@ -231,18 +231,14 @@ def generateNewProjectFiles(project, path):
     XMLWriter(newName, dict_, "assets")
 
 def spriteWriter(project,path):
-    print("TEST")
-    xml = project.sprites[0]
-    NXMLWriter("Test.xml", xml, "root")
-    exit(-1)
-
-    for sprite in project.resolutionTable["spriteNames"]:
+    for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
-        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite +".sprite.gmx")
-        activeDict["frames"]["children"][0]["content"] = "spr_" + project.projectName + "_" + sprite +"_0.png" #NOTE this will have to use the resolutiontable
-        #NOTE convert resolution table to turple
-        newFile = path + sprite +".sprite.gmx"
-        XMLWriter(newFile,activeDict,"sprite")
+        print(project.rootPath+"/sprites/"+sprite[1] +".sprite.gmx")
+        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original 
+        activeDict["frames"]["children"][0]["content"] = "images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+        newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
+        print(newFile)
+        NXMLWriter(newFile,activeDict,"sprite")
         
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
@@ -252,6 +248,6 @@ createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList)
 renameSpriteImages([project1,project2],"./Examples/Merge")
 generateNewProjectFiles(project1, "./Examples/Merge")
-#spriteWriter(project1,"./")
-print("finiš")
+spriteWriter(project1,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")
+print("finished")
 input()#hang
