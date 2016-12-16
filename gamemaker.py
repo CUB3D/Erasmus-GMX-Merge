@@ -82,8 +82,6 @@ class gameMakerProject:
         for script in self.scripts:
             self.resolutionTable["scriptNames"].append(script.name)
 
-        pprint(self.resolutionTable)
-
     def correctMistakes(self):
         self.renamedFiles = {
             "spriteNames": [],

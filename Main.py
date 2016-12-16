@@ -145,9 +145,7 @@ def createFolderStructure(projects,startDir):
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
         if not os.path.exists(baseDir +"/sprites/"+project.projectName+"/images/"):
-            print("going in path")
             os.makedirs(baseDir +"/sprites/"+project.projectName+"/images/")
-        print("working in",project.projectName)
         for sprite in project.renamedFiles["spriteNames"]:
             #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
             count = 0
@@ -209,6 +207,9 @@ def generateNewProjectFiles(project, path):
     newName = os.path.join(path, getTLName(path) + ".project.gmx")
     print("New project name:", newName)
 
+    spriteDir = os.path.join(path, "sprites/")
+    writeSpriteFiles(project, spriteDir)
+
     #TODO: rename
     dict_ = [
         ["Configs", "name=configs", [
@@ -222,26 +223,18 @@ def generateNewProjectFiles(project, path):
 
     dict_.append(["sprites", "name=sprites", spriteData])
 
-    print(dict_)
-
-    for x in project.renamedFiles:
-        for y in project.renamedFiles[x]:
-            print("X:", y)
-
     XMLWriter(newName, dict_, "assets")
 
-def spriteWriter(project,path):
+def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
-        print(project.rootPath+"/sprites/"+sprite[1] +".sprite.gmx")
         activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original
-        print(sprite[2])
         if sprite[2] != 0:
             activeDict["frames"]["children"][0]["content"] = "images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
             for frame in range(1,sprite[2] -1):
                 activeDict["frames"]["children"][frame]["content"] = "images\\" + sprite[0]+"_"+str(frame)+".png" # appends a new frame
         newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
-        print(newFile)
+        print("Generating", newFile)
         NXMLWriter(newFile,activeDict,"sprite")
         
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
@@ -252,7 +245,5 @@ createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList)
 renameSpriteImages([project1,project2],"./Examples/Merge")
 generateNewProjectFiles(project1, "./Examples/Merge")
-spriteWriter(project1,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")#need to improve drive references
-spriteWriter(project2,"D:/Erasmus-GMX-Merge/Examples/Merge/sprites/")
 print("finished")
 input()#hang
