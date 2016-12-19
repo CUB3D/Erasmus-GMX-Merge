@@ -75,7 +75,7 @@ def loadScriptFiles(project):
     Loads the data from the scripts into a list of script objects in the project
     :param project: The project object
     """
-    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path, project))
+    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path))
 
 def loadRoomFiles(project):
     """
@@ -118,6 +118,7 @@ def nameChanger(projects):
     #NOTE we could elect to rename all files
     for project in projects:
         project.correctMistakes() #changes all objects to turples
+
 def createFolderStructure(projects,startDir):
     """
     A method to generate the folder structure in a new directory, for the final merged project
@@ -198,7 +199,7 @@ def getRenameTable(project, key, tagName, pathbase):
     return data
 
 
-def generateNewProjectFiles(project, path):
+def generateNewProjectFiles(projects, path):
     """
     Generates all of the XML files required by a project
     :param project: The project to generate files for
@@ -208,7 +209,12 @@ def generateNewProjectFiles(project, path):
     print("New project name:", newName)
 
     spriteDir = os.path.join(path, "sprites/")
-    writeSpriteFiles(project, spriteDir)
+    scriptDir = os.path.join(path, "script/")
+    for project in projects:
+        writeSpriteFiles(project, spriteDir)
+        writeGMLFiles(project, scriptDir)
+
+    project = projects[0]
 
     dict_ = {}
 
@@ -229,7 +235,7 @@ def generateNewProjectFiles(project, path):
             newDict = {"name": "sprite", "content": relativePath}
             dict_["sprites"]["children"].append(newDict)
 
-    pprint(dict_)
+    #pprint(dict_)
 
     NXMLWriter(newName, dict_, "assets")
 
@@ -244,6 +250,24 @@ def writeSpriteFiles(project, path):
         newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
         print("Generating", newFile)
         NXMLWriter(newFile,activeDict,"sprite")
+
+def writeGMLFiles(project, path):
+    #TODO Script loading is no longer needed at the beginning
+    for code in project.renamedFiles["scriptNames"]:
+        print("Code:", code)
+        script = Script(project.rootPath + "/scripts/" + code[1] + ".gml")
+
+        for objects in project.renamedFiles["objectNames"]:
+            for i in range(0, len(script.content)):
+                line = script.content[i]
+                if objects[1] in line:
+                    print("Replaced reference to", objects[1], "in", script.name)
+                    script.content[i] = line.replace(objects[1], objects[0])
+
+        path_ = path + project.projectName + "/" + code[0] + ".gml"
+        print("Generating:", path)
+        script.write(path_)
+
         
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
@@ -252,6 +276,6 @@ projectList = [project1,project2]
 createFolderStructure([project1,project2],"./Examples/Merge")
 nameChanger(projectList)
 renameSpriteImages([project1,project2],"./Examples/Merge")
-generateNewProjectFiles(project1, "./Examples/Merge")
+generateNewProjectFiles([project1, project2], "./Examples/Merge")
 print("finished")
 input()#hang

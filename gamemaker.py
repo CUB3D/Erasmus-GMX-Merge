@@ -10,11 +10,15 @@ class Script:
     # The content of the script
     content = []
 
-    def __init__(self, path, project):
+    def __init__(self, path):
         #Get the name of the script with no file extension, as this is how the name is stored in the project files
         self.name = getBaseName(getTLName(path))
         with open(path, "r") as handle:
             self.content = handle.readlines()
+
+    def write(self, path):
+        with open(path, "w") as handle:
+            handle.writelines(self.content)
 
 
 class gameMakerProject:
