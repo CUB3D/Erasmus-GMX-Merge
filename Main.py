@@ -214,8 +214,6 @@ def generateNewProjectFiles(projects, path):
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
 
-    project = projects[0]
-
     dict_ = {}
 
     dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "children": [{"name": "Config", "content": "Configs\Default"}]}
@@ -225,15 +223,24 @@ def generateNewProjectFiles(projects, path):
     dict_["help"] = {"name":"help", "children": [{"name":"rtf", "content":"help.rtf"}]}
     dict_["TutorialState"] = {"name": "TutorialState", "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"}, {"name": "TutorialPage", "content": "0"}]}
     dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
-    
-    baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
+    dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
 
-    for file in os.listdir(baseSpriteDirectory):
-        if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
 
-            relativePath = "sprites/" + project.projectName + "/" + getBaseName(file)
-            newDict = {"name": "sprite", "content": relativePath}
-            dict_["sprites"]["children"].append(newDict)
+    for project in projects:
+        baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
+        baseScriptDirectory = os.path.join(path, "script", project.projectName)
+
+        for file in os.listdir(baseSpriteDirectory):
+            if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
+                relativePath = "sprites/" + project.projectName + "/" + getBaseName(file)
+                newDict = {"name": "sprite", "content": relativePath}
+                dict_["sprites"]["children"].append(newDict)
+
+        for file in os.listdir(baseScriptDirectory):
+            if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
+                relativePath = "script/" + project.projectName + "/" + getBaseName(file)
+                newDict = {"name": "script", "content": relativePath}
+                dict_["scripts"]["children"].append(newDict)
 
     #pprint(dict_)
 
