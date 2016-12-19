@@ -210,22 +210,16 @@ def generateNewProjectFiles(project, path):
     spriteDir = os.path.join(path, "sprites/")
     writeSpriteFiles(project, spriteDir)
 
-    #TODO: rename
-    dict_ = [
-        ["Configs", "name=configs", [
-            ["Config", "Configs\Default"]
-        ]],
-        ["NewExtensions", ""],
-        ["sounds", "name=sound", ""],
-    ]
-
     dict_ = {}
 
-    dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "content": "Configs\Default"}
+    dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "children": [{"name": "Config", "content": "Configs\Default"}]}
     dict_["NewExtensions"] = {"name": "NewExtensions"}
     dict_["sounds"] = {"name": "sounds", "content": "", "attributes": [("name", "sound")]}
     dict_["sprites"] = {"name": "sprites", "content": "", "attributes": [("name", "sprites")], "children": []}
-
+    dict_["help"] = {"name":"help", "children": [{"name":"rtf", "content":"help.rtf"}]}
+    dict_["TutorialState"] = {"name": "TutorialState", "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"}, {"name": "TutorialPage", "content": "0"}]}
+    dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
+    
     baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
 
     for file in os.listdir(baseSpriteDirectory):

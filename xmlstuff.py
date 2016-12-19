@@ -82,7 +82,7 @@ def __NXMLWriter(data, rootobj, depth=1, indent="    "):
         subElement = ElementTree.SubElement(rootobj, data["name"])
         subElement.tail = "\n" + (indent * depth)
         subElement.text = "\n" + (indent * (depth + 1))
-        subElement.attrib = parseAttributes(data["attributes"])
+        subElement.attrib = parseAttributes(data["attributes"]) if "attributes" in data else {}
         for child in data["children"]:
             __NXMLWriter(child, subElement, depth + 1, indent)
     else:
