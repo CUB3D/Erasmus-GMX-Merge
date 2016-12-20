@@ -208,11 +208,6 @@ def generateNewProjectFiles(projects, path):
     newName = os.path.join(path, getTLName(path) + ".project.gmx")
     print("New project name:", newName)
 
-    spriteDir = os.path.join(path, "sprites/")
-    scriptDir = os.path.join(path, "script/")
-    for project in projects:
-        writeSpriteFiles(project, spriteDir)
-        writeGMLFiles(project, scriptDir)
 
     dict_ = {}
 
@@ -225,8 +220,16 @@ def generateNewProjectFiles(projects, path):
     dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
     dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
 
-
+    
+    spriteDir = os.path.join(path, "sprites/")
+    scriptDir = os.path.join(path, "script/")
+    objectDir = os.path.join(path, "objects/")
+    
     for project in projects:
+        writeSpriteFiles(project, spriteDir)
+        writeGMLFiles(project, scriptDir)
+        writeObjectFiles(project, objectDir)
+        
         baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
 
@@ -261,7 +264,6 @@ def writeSpriteFiles(project, path):
 def writeGMLFiles(project, path):
     #TODO Script loading is no longer needed at the beginning
     for code in project.renamedFiles["scriptNames"]:
-        print("Code:", code)
         script = Script(project.rootPath + "/scripts/" + code[1] + ".gml")
 
         for objects in project.renamedFiles["objectNames"]:
@@ -275,7 +277,12 @@ def writeGMLFiles(project, path):
         print("Generating:", path)
         script.write(path_)
 
-        
+def writeObjectFiles(project, path):
+    for obj in project.renamedFiles["objectNames"]:
+        #This xml is too complicated to generate the standard way
+        objectXML = getXmlDict(os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx"))
+        pprint(objectXML)
+
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
 projectList = [project1,project2]
