@@ -224,12 +224,12 @@ def generateNewProjectFiles(projects, path):
     spriteDir = os.path.join(path, "sprites/")
     scriptDir = os.path.join(path, "script/")
     objectDir = os.path.join(path, "objects/")
-    roomDir = os.path.join(path,"rooms/")
+    
     for project in projects:
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
-        writeRoomFiles(project,roomDir)
+        
         baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
 
@@ -337,20 +337,10 @@ def writeObjectFiles(project, path):
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
 
-def writeRoomFiles(project,path):
-    room = project.renamedFiles["roomNames"][0]
-    newPath = path + project.projectName +"/"+ room[0] +".room.gmx"
-    activeDict = getXmlDict(project.rootPath + "/rooms/" + room[1] +".room.gmx")
-    #pprint(activeDict)
-    for object in project.renamedFiles["objectNames"]:
-        search = ("objName",object[1],)
-        count = 0
-        for instance in activeDict["instances"]["children"]:
-            if search in activeDict["instances"]["children"][count]["attributes"]:
-                index = activeDict["instances"]["children"][count]["attributes"].index(search)
-                activeDict["instances"]["children"][count]["attributes"][index] = ("objName",object[0],)
-            count += 1
-    NXMLWriter(newPath,activeDict,"room")
+
+
+
+
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
