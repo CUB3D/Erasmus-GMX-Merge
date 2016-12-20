@@ -219,6 +219,7 @@ def generateNewProjectFiles(projects, path):
     dict_["TutorialState"] = {"name": "TutorialState", "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"}, {"name": "TutorialPage", "content": "0"}]}
     dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
     dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
+    dict_["objects"] = {"name": "objects", "attributes": [("name", "objects")], "children":[]}
 
     
     spriteDir = os.path.join(path, "sprites/")
@@ -232,6 +233,7 @@ def generateNewProjectFiles(projects, path):
         
         baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
+        baseObjectDirectory = os.path.join(path, "objects", project.projectName)
 
         for file in os.listdir(baseSpriteDirectory):
             if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
@@ -244,6 +246,15 @@ def generateNewProjectFiles(projects, path):
                 relativePath = "script/" + project.projectName + "/" + getBaseName(file)
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
+
+        for file in os.listdir(baseObjectDirectory):
+            if not os.path.isdir(os.path.join(baseObjectDirectory, file)):
+                relativePath = "objects/" + project.projectName + "/" + getBaseName(file)
+                newDict = {"name": "object", "content": relativePath}
+                dict_["objects"]["children"].append(newDict)
+
+
+
 
     #pprint(dict_)
 
