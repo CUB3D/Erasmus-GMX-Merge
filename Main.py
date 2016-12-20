@@ -280,8 +280,58 @@ def writeGMLFiles(project, path):
 def writeObjectFiles(project, path):
     for obj in project.renamedFiles["objectNames"]:
         #This xml is too complicated to generate the standard way
-        objectXML = getXmlDict(os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx"))
-        pprint(objectXML)
+        objPath = os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx")
+        objectXML = getXmlDict(objPath)
+        events = objectXML["events"]
+        for child in events["children"]:
+            #the children of events "event" always have one child, an "action"
+            action = child["children"][0]
+            #This appears to indicate how the event should be called
+            #0 Seems to mean a pre-made event, 2 seems to be a script
+            exeType = "0"
+            arguments = {}
+            for baby in action["children"]:
+                if baby["name"] == "exetype":
+                    exeType = baby["content"]
+                if baby["name"] == "arguments":
+                    arguments = baby
+
+            kind = ""
+            data = ""
+            for argument in arguments["children"]:
+                for argumentChild in argument["children"]:
+                    if argumentChild["name"] == "kind":
+                        kind = argumentChild["content"]
+                    # Extend this to support all data types
+                    if argumentChild["name"] == "string":
+                        data = argumentChild["content"]
+            if exeType == "2":
+                #Ignore everything that is not a script for now
+                print("found exetype", exeType)
+                print("Kind:", kind)
+                print("Data:", data)
+                print("Running replace")
+
+                for newName, oldName in project.renamedFiles["objectNames"]:
+                    if oldName in data:
+                        print("Replaced changed reference to", oldName, "in", objPath)
+                        data = data.replace(oldName, newName)
+
+                print("Rebuilding XML")
+
+                for argument in arguments["children"]:
+                    for argumentChild in argument["children"]:
+                        # Extend this to support all data types
+                        if argumentChild["name"] == "string":
+                            argumentChild["content"] = data
+        newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
+        print("Generating", newPath)
+        NXMLWriter(newPath, objectXML, "object")
+
+
+
+
+
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
