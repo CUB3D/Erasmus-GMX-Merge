@@ -285,6 +285,15 @@ def writeObjectFiles(project, path):
         events = objectXML["events"]
         for child in events["children"]:
             #the children of events "event" always have one child, an "action"
+
+            for i in range(len(child["attributes"])):
+                attributeName = child["attributes"][i][0]
+                attributeValue = child["attributes"][i][1]
+                if attributeName == "ename":
+                    for newName, oldName in project.renamedFiles["objectNames"]:
+                        if oldName == attributeValue:
+                            child["attributes"][i] = (attributeName, newName)
+
             action = child["children"][0]
             #This appears to indicate how the event should be called
             #0 Seems to mean a pre-made event, 2 seems to be a script
