@@ -167,17 +167,10 @@ def generateNewProjectFiles(projects, path):
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
         writeRoomFiles(project, roomDir)
-        
-        baseSpriteDirectory = os.path.join(path, "sprites")
+
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
         baseObjectDirectory = os.path.join(path, "objects", project.projectName)
-        baseRoomDirecotry = os.path.join(path, "rooms", project.projectName)
-
-        for file in os.listdir(baseSpriteDirectory):
-            if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
-                relativePath = os.path.join("sprites", getBaseName(file))
-                newDict = {"name": "sprite", "content": relativePath}
-                dict_["sprites"]["children"].append(newDict)
+        baseRoomDirectory = os.path.join(path, "rooms", project.projectName)
 
         for file in os.listdir(baseScriptDirectory):
             if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
@@ -192,11 +185,20 @@ def generateNewProjectFiles(projects, path):
                 newDict = {"name": "object", "content": relativePath}
                 dict_["objects"]["children"].append(newDict)
 
-        for file in os.listdir(baseRoomDirecotry):
-            if not os.path.isdir(os.path.join(baseRoomDirecotry, file)):
+        for file in os.listdir(baseRoomDirectory):
+            if not os.path.isdir(os.path.join(baseRoomDirectory, file)):
                 relativePath = os.path.join("rooms", project.projectName, getBaseName(file))
                 newDict = {"name": "room", "content": relativePath}
                 dict_["rooms"]["children"].append(newDict)
+
+    baseSpriteDirectory = os.path.join(path, "sprites")
+
+    for file in os.listdir(baseSpriteDirectory):
+        if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
+            relativePath = os.path.join("sprites", getBaseName(file))
+            newDict = {"name": "sprite", "content": relativePath}
+            print("Adding:", file)
+            dict_["sprites"]["children"].append(newDict)
 
     NXMLWriter(newName, dict_, "assets")
 
@@ -208,6 +210,7 @@ def writeRoomFiles(project, path):
                 name = child["attributes"][i][0]
                 value = child["attributes"][i][0]
                 if name == "objName":
+                    #TODO
                     for newObjName, oldObjName in project.renamedFiles["objectNames"]:
                         if oldName == value:
                             child["attributes"][i] = (name, newName)
