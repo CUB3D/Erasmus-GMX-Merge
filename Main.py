@@ -1,4 +1,4 @@
-from shutil import rmtree,copy2
+from shutil import rmtree,copy2,copytree
 
 from gamemaker import *
 from xmlstuff import XMLParser, XMLWriter, NXMLWriter
@@ -126,13 +126,14 @@ def createFolderStructure(projects,startDir):
     :param projects: a list of all the different gameMakerProject types
     :param startDir: a location for the new merged project to be located
     """
-    cases = ["Configs","objects","Output","rooms","script","sprites"]
+    cases = ["objects","Output","rooms","script","sprites"]
     print("Making merge directory")
     if os.path.exists(startDir):
         if input("Output directory already exists, remove? (y/n)").lower() == "y":
             print("Removing")
             rmtree(startDir)
             os.makedirs(startDir)
+            copytree(projects[0].rootPath + "/Configs",startDir + "/Configs")
             for case in cases:
                 basePath = os.path.abspath(os.path.join(startDir, case))
                 for project in projects:
@@ -292,9 +293,9 @@ def writeSpriteFiles(project, path):
         ###parse the xml###
         activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original
         if sprite[2] != 0:
-            activeDict["frames"]["children"][0]["content"] = "images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+            activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
             for frame in range(1,sprite[2] -1):
-                activeDict["frames"]["children"][frame]["content"] = "images\\" + sprite[0]+"_"+str(frame)+".png" # appends a new frame
+                activeDict["frames"]["children"][frame]["content"] = project.projectName + "\images\\" + sprite[0]+"_"+str(frame)+".png" # appends a new frame
         newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
         print("Generating", newFile)
         NXMLWriter(newFile,activeDict,"sprite")
