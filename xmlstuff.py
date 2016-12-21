@@ -26,7 +26,7 @@ def _XMLGetElementDict(element):
 
 def XMLParser(file):
     with open(file, "r") as handle:
-        content = "".join([x.replace("\n", "").replace("\t", "") for x in handle.readlines()])
+        content = "".join([x for x in handle.readlines()])
     root = ElementTree.XML(content)
     xmlTagList = {
         "filename":file    

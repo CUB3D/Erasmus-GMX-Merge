@@ -181,7 +181,8 @@ def generateNewProjectFiles(projects, path):
 
         for file in os.listdir(baseScriptDirectory):
             if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
-                relativePath = os.path.join("script", project.projectName, getBaseName(file))
+                #No get base name because, why have a consistent format
+                relativePath = os.path.join("script", project.projectName, file)
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
 
