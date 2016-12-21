@@ -212,8 +212,8 @@ def writeRoomFiles(project, path):
                 if name == "objName":
                     #TODO
                     for newObjName, oldObjName in project.renamedFiles["objectNames"]:
-                        if oldName == value:
-                            child["attributes"][i] = (name, newName)
+                        if oldObjName == value:
+                            child["attributes"][i] = (name, newObjName)
 
 
         newFile = os.path.join(path, project.projectName, newName + ".room.gmx")
@@ -244,7 +244,11 @@ def writeGMLFiles(project, path):
                 if objects[1] in line:
                     print("Replaced reference to", objects[1], "in", script.name)
                     script.content[i] = line.replace(objects[1], objects[0])
-
+                #Replace script references
+                for newName, oldName in project.renamedFiles["scriptNames"]:
+                    if oldName in line:
+                        print("Replaced changed reference to", oldName, "in", script.name)
+                        script.content[i] = line.replace(oldName, newName)
         path_ = path + project.projectName + "/" + code[0] + ".gml"
         print("Generating:", path)
         script.write(path_)
@@ -294,7 +298,14 @@ def writeObjectFiles(project, path):
                 print("found exetype", exeType)
                 print("Running replace")
 
+                #Replace object references
                 for newName, oldName in project.renamedFiles["objectNames"]:
+                    if oldName in data:
+                        print("Replaced changed reference to", oldName, "in", objPath)
+                        data = data.replace(oldName, newName)
+
+                #Replace script references
+                for newName, oldName in project.renamedFiles["scriptNames"]:
                     if oldName in data:
                         print("Replaced changed reference to", oldName, "in", objPath)
                         data = data.replace(oldName, newName)
