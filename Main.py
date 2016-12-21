@@ -208,7 +208,7 @@ def writeRoomFiles(project, path):
         for child in roomXML["instances"]["children"]:
             for i in range(len(child["attributes"])):
                 name = child["attributes"][i][0]
-                value = child["attributes"][i][0]
+                value = child["attributes"][i][1]
                 if name == "objName":
                     #TODO
                     for newObjName, oldObjName in project.renamedFiles["objectNames"]:
