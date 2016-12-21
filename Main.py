@@ -55,42 +55,6 @@ def recursiveFileLoading(project, dictKey, ending, callback):
 def XMLGeneratorCallback(path):
     return getXmlDict(path)
 
-
-def loadConfigFiles(project):
-    """
-    Loads the data from the config files into the project
-    :param project: The project object
-    """
-    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
-
-def loadObjectFiles(project):
-    """
-    Loads the data from the object files into the project
-    :param project: The project object
-    """
-    project.objects = recursiveFileLoading(project, "objects", ".object.gmx", XMLGeneratorCallback)
-
-def loadScriptFiles(project):
-    """
-    Loads the data from the scripts into a list of script objects in the project
-    :param project: The project object
-    """
-    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path))
-
-def loadRoomFiles(project):
-    """
-    Loads the data from the room files into the project
-    :param project: The project object
-    """
-    project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
-
-def loadSpriteFiles(project):
-    """
-    Loads sprite data from the sprite files into the project
-    :param project: The project object
-    """
-    project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
-
 def nameChanger(projects):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
@@ -153,16 +117,17 @@ def parseProjectData(file):
     """
     project = gameMakerProject(file)#Create an instance of the game maker project type using the passed file location as the root
     project.project = getXmlDict(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
-    print("Loading and parsing config")
-    loadConfigFiles(project)#call config load
+
+    print("Parsing configs")
+    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
     print("Loading object files")
-    loadObjectFiles(project)
+    project.objects = recursiveFileLoading(project, "objects", ".object.gmx", XMLGeneratorCallback)
     print("Parsing scripts")
-    loadScriptFiles(project)
+    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path))
     print("Loading room data")
-    loadRoomFiles(project)
+    project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
     print("Loading sprite data")
-    loadSpriteFiles(project)
+    project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
     project.buildResolutionTable()
     return project
 
