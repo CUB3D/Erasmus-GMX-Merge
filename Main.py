@@ -55,61 +55,6 @@ def recursiveFileLoading(project, dictKey, ending, callback):
 def XMLGeneratorCallback(path):
     return getXmlDict(path)
 
-
-def loadConfigFiles(project):
-    """
-    Loads the data from the config files into the project
-    :param project: The project object
-    """
-    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
-
-def loadObjectFiles(project):
-    """
-    Loads the data from the object files into the project
-    :param project: The project object
-    """
-    project.objects = recursiveFileLoading(project, "objects", ".object.gmx", XMLGeneratorCallback)
-
-def loadScriptFiles(project):
-    """
-    Loads the data from the scripts into a list of script objects in the project
-    :param project: The project object
-    """
-    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path))
-
-def loadRoomFiles(project):
-    """
-    Loads the data from the room files into the project
-    :param project: The project object
-    """
-    project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
-
-def loadSpriteFiles(project):
-    """
-    Loads sprite data from the sprite files into the project
-    :param project: The project object
-    """
-    project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
-
-# ##def checkCollision(projects):
-#     """
-#     Checks through all categories in the checkCases list to see if there are any copies in all projects in the projects list
-#     :param projects: A list of project objects
-#     """
-#     checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
-#     collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
-#     passList = []#a list to store all non collisions so all the data can be accessed so it doesnt have to be searched again
-#     for case in checkCases:#iterate through all the cases
-#         caseAspects = [] #a list of all the different elements by name, specific to the type
-#         for project in projects: #iterate through all the projects
-#             for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
-#                 if level not in caseAspects:#check if the level is the the list of stored elements
-#                     caseAspects.append(level)#if not append
-#                     passList.append([project.projectName,case,level])
-#                 else: #else join the collision to a table to be printed at the end
-#                     collisionList.append([project.projectName,case,level])
-#     return collisionList,passList
-
 def nameChanger(projects):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
@@ -173,33 +118,19 @@ def parseProjectData(file):
     """
     project = gameMakerProject(file)#Create an instance of the game maker project type using the passed file location as the root
     project.project = getXmlDict(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
-    print("Loading and parsing config")
-    loadConfigFiles(project)#call config load
+
+    print("Parsing configs")
+    project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
     print("Loading object files")
-    loadObjectFiles(project)
+    project.objects = recursiveFileLoading(project, "objects", ".object.gmx", XMLGeneratorCallback)
     print("Parsing scripts")
-    loadScriptFiles(project)
+    project.scripts = recursiveFileLoading(project, "scripts", "", lambda path: Script(path))
     print("Loading room data")
-    loadRoomFiles(project)
+    project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
     print("Loading sprite data")
-    loadSpriteFiles(project)
+    project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
     project.buildResolutionTable()
     return project
-
-def getRenameTable(project, key, tagName, pathbase):
-    """
-    Builds a table of all the names of each object after the rename operation
-    :param project:
-    :param key:
-    :param tagName:
-    :return:
-    """
-    data = []
-    for object_ in project.resolutionTable[key]:
-        name = object_
-        data.append([tagName, os.path.join(pathbase, project.projectName, name[0])])
-    return data
-
 
 def generateNewProjectFiles(projects, path):
     """
@@ -264,17 +195,11 @@ def generateNewProjectFiles(projects, path):
                 newDict = {"name": "room", "content": relativePath}
                 dict_["rooms"]["children"].append(newDict)
 
-
-
-
-    #pprint(dict_)
-
     NXMLWriter(newName, dict_, "assets")
 
 def writeRoomFiles(project, path):
     for newName, oldName in project.renamedFiles["roomNames"]:
         roomXML = getXmlDict(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
-
         for child in roomXML["instances"]["children"]:
             for i in range(len(child["attributes"])):
                 name = child["attributes"][i][0]
@@ -360,8 +285,6 @@ def writeObjectFiles(project, path):
             if exeType == "2":
                 #Ignore everything that is not a script for now
                 print("found exetype", exeType)
-                print("Kind:", kind)
-                print("Data:", data)
                 print("Running replace")
 
                 for newName, oldName in project.renamedFiles["objectNames"]:
@@ -376,22 +299,20 @@ def writeObjectFiles(project, path):
                         # Extend this to support all data types
                         if argumentChild["name"] == "string":
                             argumentChild["content"] = data
+        
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
 
 
+def preformMerge(proj1, proj2, output):
+    project1 = parseProjectData(proj1)
+    project2 = parseProjectData(proj2)
+    projectList = [project1,project2]
+    createFolderStructure(projectList, output)
+    nameChanger(projectList)
+    renameSpriteImages(projectList, output)
+    generateNewProjectFiles(projectList, output)
 
 
-
-
-project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
-project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
-projectList = [project1,project2]
-#collisionList, passList = checkCollision(projectList)
-createFolderStructure([project1,project2],"./Examples/Merge")
-nameChanger(projectList)
-renameSpriteImages([project1,project2],"./Examples/Merge")
-generateNewProjectFiles([project1, project2], "./Examples/Merge")
-print("finished")
-input()#hang
+preformMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
