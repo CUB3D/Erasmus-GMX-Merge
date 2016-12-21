@@ -166,21 +166,6 @@ def parseProjectData(file):
     project.buildResolutionTable()
     return project
 
-def getRenameTable(project, key, tagName, pathbase):
-    """
-    Builds a table of all the names of each object after the rename operation
-    :param project:
-    :param key:
-    :param tagName:
-    :return:
-    """
-    data = []
-    for object_ in project.resolutionTable[key]:
-        name = object_
-        data.append([tagName, os.path.join(pathbase, project.projectName, name[0])])
-    return data
-
-
 def generateNewProjectFiles(projects, path):
     """
     Generates all of the XML files required by a project
@@ -244,17 +229,11 @@ def generateNewProjectFiles(projects, path):
                 newDict = {"name": "room", "content": relativePath}
                 dict_["rooms"]["children"].append(newDict)
 
-
-
-
-    #pprint(dict_)
-
     NXMLWriter(newName, dict_, "assets")
 
 def writeRoomFiles(project, path):
     for newName, oldName in project.renamedFiles["roomNames"]:
         roomXML = getXmlDict(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
-
         for child in roomXML["instances"]["children"]:
             for i in range(len(child["attributes"])):
                 name = child["attributes"][i][0]
