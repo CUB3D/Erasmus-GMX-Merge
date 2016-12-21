@@ -208,7 +208,6 @@ def generateNewProjectFiles(projects, path):
     newName = os.path.join(path, getTLName(path) + ".project.gmx")
     print("New project name:", newName)
 
-
     dict_ = {}
 
     dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "children": [{"name": "Config", "content": "Configs\Default"}]}
@@ -219,19 +218,25 @@ def generateNewProjectFiles(projects, path):
     dict_["TutorialState"] = {"name": "TutorialState", "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"}, {"name": "TutorialPage", "content": "0"}]}
     dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
     dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
+    dict_["objects"] = {"name": "objects", "attributes": [("name", "objects")], "children":[]}
+    dict_["rooms"] = {"name": "rooms", "attributes": [("name", "rooms")], "children": []}
 
     
     spriteDir = os.path.join(path, "sprites/")
     scriptDir = os.path.join(path, "script/")
     objectDir = os.path.join(path, "objects/")
+    roomDir = os.path.join(path, "rooms/")
     
     for project in projects:
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
+        writeRoomFiles(project, roomDir)
         
         baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
+        baseObjectDirectory = os.path.join(path, "objects", project.projectName)
+        baseRoomDirecotry = os.path.join(path, "rooms", project.projectName)
 
         for file in os.listdir(baseSpriteDirectory):
             if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
@@ -245,9 +250,42 @@ def generateNewProjectFiles(projects, path):
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
 
+        for file in os.listdir(baseObjectDirectory):
+            if not os.path.isdir(os.path.join(baseObjectDirectory, file)):
+                relativePath = "objects/" + project.projectName + "/" + getBaseName(file)
+                newDict = {"name": "object", "content": relativePath}
+                dict_["objects"]["children"].append(newDict)
+
+        for file in os.listdir(baseRoomDirecotry):
+            if not os.path.isdir(os.path.join(baseRoomDirecotry, file)):
+                relativePath = "rooms/" + project.projectName + "/" + getBaseName(file)
+                newDict = {"name": "room", "content": relativePath}
+                dict_["rooms"]["children"].append(newDict)
+
+
+
+
     #pprint(dict_)
 
     NXMLWriter(newName, dict_, "assets")
+
+def writeRoomFiles(project, path):
+    for newName, oldName in project.renamedFiles["roomNames"]:
+        roomXML = getXmlDict(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
+
+        for child in roomXML["instances"]["children"]:
+            for i in range(len(child["attributes"])):
+                name = child["attributes"][i][0]
+                value = child["attributes"][i][0]
+                if name == "objName":
+                    for newObjName, oldObjName in project.renamedFiles["objectNames"]:
+                        if oldName == value:
+                            child["attributes"][i] = (name, newName)
+
+
+        newFile = os.path.join(path, project.projectName, newName + ".room.gmx")
+        print("Generating", newFile)
+        NXMLWriter(newFile, roomXML, "room")
 
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
