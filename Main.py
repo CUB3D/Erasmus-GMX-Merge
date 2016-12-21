@@ -71,7 +71,7 @@ def createFolderStructure(projects,startDir):
     :param projects: a list of all the different gameMakerProject types
     :param startDir: a location for the new merged project to be located
     """
-    cases = ["objects","Output","rooms","script","sprites"]
+    cases = ["objects","rooms","script","sprites"]
     print("Making merge directory")
     if os.path.exists(startDir):
         if input("Output directory already exists, remove? (y/n)").lower() == "y":
@@ -86,6 +86,8 @@ def createFolderStructure(projects,startDir):
                     projectSubDir = os.path.join(basePath, project.projectName) 
                     print("Making", projectSubDir, "directory")
                     os.makedirs(projectSubDir)
+            os.makedirs(os.path.join(startDir, "Output"))
+            os.makedirs(os.path.join(startDir, "sprites/images"))
         else:
             print("Aborting")
             exit(0)
@@ -99,8 +101,8 @@ def renameSpriteImages(projects,baseDir):
             count = 0
             while True:
                 try:
-                    cp = (baseDir + "/sprites/" + project.projectName + "/images/" + sprite[0] + "_" + str(count) + ".png")
-                    src =(project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png")
+                    cp = os.path.join(baseDir, "sprites/images", sprite[0] + "_" + str(count) + ".png")
+                    src = os.path.join(project.rootPath, "sprites/images", sprite[1] + "_" + str(count) + ".png")
                     copy2(src,cp)
                     count += 1
                 except :
@@ -166,32 +168,32 @@ def generateNewProjectFiles(projects, path):
         writeObjectFiles(project, objectDir)
         writeRoomFiles(project, roomDir)
         
-        baseSpriteDirectory = os.path.join(path, "sprites", project.projectName)
+        baseSpriteDirectory = os.path.join(path, "sprites")
         baseScriptDirectory = os.path.join(path, "script", project.projectName)
         baseObjectDirectory = os.path.join(path, "objects", project.projectName)
         baseRoomDirecotry = os.path.join(path, "rooms", project.projectName)
 
         for file in os.listdir(baseSpriteDirectory):
             if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
-                relativePath = "sprites/" + project.projectName + "/" + getBaseName(file)
+                relativePath = os.path.join("sprites", getBaseName(file))
                 newDict = {"name": "sprite", "content": relativePath}
                 dict_["sprites"]["children"].append(newDict)
 
         for file in os.listdir(baseScriptDirectory):
             if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
-                relativePath = "script/" + project.projectName + "/" + getBaseName(file)
+                relativePath = os.path.join("script", project.projectName, getBaseName(file))
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
 
         for file in os.listdir(baseObjectDirectory):
             if not os.path.isdir(os.path.join(baseObjectDirectory, file)):
-                relativePath = "objects/" + project.projectName + "/" + getBaseName(file)
+                relativePath = os.path.join("objects", project.projectName, getBaseName(file))
                 newDict = {"name": "object", "content": relativePath}
                 dict_["objects"]["children"].append(newDict)
 
         for file in os.listdir(baseRoomDirecotry):
             if not os.path.isdir(os.path.join(baseRoomDirecotry, file)):
-                relativePath = "rooms/" + project.projectName + "/" + getBaseName(file)
+                relativePath = os.path.join("rooms", project.projectName, getBaseName(file))
                 newDict = {"name": "room", "content": relativePath}
                 dict_["rooms"]["children"].append(newDict)
 
@@ -217,12 +219,13 @@ def writeRoomFiles(project, path):
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
-        activeDict = getXmlDict(project.rootPath + "/sprites/" + sprite[1] +".sprite.gmx")#parses the xml from the original
+        activeDict = getXmlDict(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
         if sprite[2] != 0:
-            activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+            #activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
+            activeDict["frames"]["children"][0]["content"] = os.path.join("images", sprite[0] + "_0.png")  # renames the frame content to the location of the new image
             for frame in range(1,sprite[2] -1):
-                activeDict["frames"]["children"][frame]["content"] = project.projectName + "\images\\" + sprite[0]+"_"+str(frame)+".png" # appends a new frame
-        newFile = path + project.projectName +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
+                activeDict["frames"]["children"][frame]["content"] = os.path.join("images", sprite[0]+"_"+str(frame)+".png") # appends a new frame
+        newFile = path +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
         print("Generating", newFile)
         NXMLWriter(newFile,activeDict,"sprite")
 
@@ -249,7 +252,7 @@ def writeObjectFiles(project, path):
         objectXML = getXmlDict(objPath)
         for sprite in project.renamedFiles["spriteNames"]:
             if objectXML["spriteName"]["content"] == sprite[1]:
-                objectXML["spriteName"]["content"] = "sprites/" + project.projectName + "/" + sprite[0]
+                objectXML["spriteName"]["content"] = sprite[0]
         events = objectXML["events"]
         for child in events["children"]:
             #the children of events "event" always have one child, an "action"
