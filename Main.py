@@ -134,6 +134,7 @@ def createFolderStructure(projects,startDir):
             rmtree(startDir)
             os.makedirs(startDir)
             copytree(projects[0].rootPath + "/Configs",startDir + "/Configs")
+            copy2(projects[0].rootPath + "/help.rtf",startDir)
             for case in cases:
                 basePath = os.path.abspath(os.path.join(startDir, case))
                 for project in projects:
@@ -321,6 +322,9 @@ def writeObjectFiles(project, path):
         #This xml is too complicated to generate the standard way
         objPath = os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx")
         objectXML = getXmlDict(objPath)
+        for sprite in project.renamedFiles["spriteNames"]:
+            if objectXML["spriteName"]["content"] == sprite[1]:
+                objectXML["spriteName"]["content"] = "sprites/" + project.projectName + "/" + sprite[0]
         events = objectXML["events"]
         for child in events["children"]:
             #the children of events "event" always have one child, an "action"
