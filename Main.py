@@ -91,25 +91,6 @@ def loadSpriteFiles(project):
     """
     project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
 
-# ##def checkCollision(projects):
-#     """
-#     Checks through all categories in the checkCases list to see if there are any copies in all projects in the projects list
-#     :param projects: A list of project objects
-#     """
-#     checkCases = ["objectNames","roomNames","scriptNames","spriteNames"]#A list of all the different element types we will be searching for
-#     collisionList = [] #A list to notate all naming collisions using "collision at [projectName] [case] [level]
-#     passList = []#a list to store all non collisions so all the data can be accessed so it doesnt have to be searched again
-#     for case in checkCases:#iterate through all the cases
-#         caseAspects = [] #a list of all the different elements by name, specific to the type
-#         for project in projects: #iterate through all the projects
-#             for level in project.resolutionTable[case]: #go through all elements of the resolution table of the current project using the current case
-#                 if level not in caseAspects:#check if the level is the the list of stored elements
-#                     caseAspects.append(level)#if not append
-#                     passList.append([project.projectName,case,level])
-#                 else: #else join the collision to a table to be printed at the end
-#                     collisionList.append([project.projectName,case,level])
-#     return collisionList,passList
-
 def nameChanger(projects):
     """
     A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
@@ -356,8 +337,6 @@ def writeObjectFiles(project, path):
             if exeType == "2":
                 #Ignore everything that is not a script for now
                 print("found exetype", exeType)
-                print("Kind:", kind)
-                print("Data:", data)
                 print("Running replace")
 
                 for newName, oldName in project.renamedFiles["objectNames"]:
@@ -375,11 +354,6 @@ def writeObjectFiles(project, path):
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
-
-
-
-
-
 
 project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
 project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
