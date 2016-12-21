@@ -351,17 +351,20 @@ def writeObjectFiles(project, path):
                         # Extend this to support all data types
                         if argumentChild["name"] == "string":
                             argumentChild["content"] = data
+        
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
 
-project1 = parseProjectData("./Examples/Erasmus.gmx")#Start using the file Erasmus in the example
-project2 = parseProjectData("./Examples/FireWorldScales.gmx")#throws error as not finding file
-projectList = [project1,project2]
-#collisionList, passList = checkCollision(projectList)
-createFolderStructure([project1,project2],"./Examples/Merge")
-nameChanger(projectList)
-renameSpriteImages([project1,project2],"./Examples/Merge")
-generateNewProjectFiles([project1, project2], "./Examples/Merge")
-print("finished")
-input()#hang
+
+def preformMerge(proj1, proj2, output):
+    project1 = parseProjectData(proj1)
+    project2 = parseProjectData(proj2)
+    projectList = [project1,project2]
+    createFolderStructure(projectList, output)
+    nameChanger(projectList)
+    renameSpriteImages(projectList, output)
+    generateNewProjectFiles(projectList, output)
+
+
+preformMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
