@@ -3,11 +3,11 @@ import os,shutil
 from math import *
 from tempfile import mkdtemp
 
-def MultiMerge(folder):
+def MultiMerge(folder, force=False):
     """
-    Merges mutiple game maker projects together  
-    :param Folder: The location of all projects to be merged, must be a single directory
-    :return:
+    Merges multiple game maker projects together
+    :param folder: The location of all projects to be merged, must be a single directory
+    :param force: If true then directories will be overwritten without asking permission
     """
     val = os.listdir(folder)#gens a list of all directories in the sub directory
     if len(val):
@@ -24,7 +24,7 @@ def MultiMerge(folder):
                 output = os.path.join(folder,"Merge_"+str(count))
                 output = mkdtemp()
                 print(local1,local2)
-                performMerge(local1, local2, output)
+                performMerge(local1, local2, output, force)
                 storeArray.append(output) #### this could be any function
                 shutil.rmtree(local1)
                 shutil.rmtree(local2)
@@ -41,4 +41,4 @@ def MultiMerge(folder):
     else:
         print("nothing in directory")
 
-MultiMerge("./Examples/")
+MultiMerge("./Examples/", True)

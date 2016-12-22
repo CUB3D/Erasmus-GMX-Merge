@@ -58,17 +58,18 @@ def nameChanger(projects):
     for project in projects:
         project.correctMistakes() #changes all objects to turples
 
-def createFolderStructure(projects,startDir):
+def createFolderStructure(projects,startDir, force):
     """
     A method to generate the folder structure in a new directory, for the final merged project
     Will create subdirectories for each of the projects being merged
     :param projects: a list of all the different gameMakerProject types
     :param startDir: a location for the new merged project to be located
+    :param force: If true then the old directory is removed without asking permission
     """
     cases = ["objects","rooms","script","sprites"]
     print("Making merge directory")
     if os.path.exists(startDir):
-        if input("Output directory already exists, remove? (y/n)").lower() == "y":
+        if input("Output directory already exists, remove? (y/n)").lower() == "y" or force:
             print("Removing")
             rmtree(startDir)
             os.makedirs(startDir)
@@ -327,11 +328,12 @@ def writeObjectFiles(project, path):
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
-def performMerge(proj1, proj2, output):
+
+def performMerge(proj1, proj2, output, force=False):
     project1 = parseProjectData(proj1)
     project2 = parseProjectData(proj2)
     projectList = [project1,project2]
-    createFolderStructure(projectList, output)
+    createFolderStructure(projectList, output, force)
     nameChanger(projectList)
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
