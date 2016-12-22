@@ -1,6 +1,8 @@
 from Main import performMerge
 import os,shutil
 from math import *
+from tempfile import mkdtemp
+
 def MultiMerge(folder):
     """
     Merges mutiple game maker projects together  
@@ -20,6 +22,7 @@ def MultiMerge(folder):
                 local1 = os.path.join(folder,val[arr])
                 local2 = os.path.join(folder,val[arr+1])
                 output = os.path.join(folder,"Merge_"+str(count))
+                output = mkdtemp()
                 print(local1,local2)
                 performMerge(local1, local2, output)
                 storeArray.append(output) #### this could be any function
@@ -34,7 +37,7 @@ def MultiMerge(folder):
                 performMerge(local1, local2, output)
                 storeArray[-1] = output ####here we would have to change functions again
                 count += 1
-        os.rename(storeArray[0],os.path.join(folder,"Final"))
+        shutil.move(storeArray[0], os.path.join(folder,"Final"))
     else:
         print("nothing in directory")
 
