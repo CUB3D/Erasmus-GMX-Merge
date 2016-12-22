@@ -161,7 +161,7 @@ def generateNewProjectFiles(projects, path):
     scriptDir = os.path.join(path, "script/")
     objectDir = os.path.join(path, "objects/")
     roomDir = os.path.join(path, "rooms/")
-    
+
     for project in projects:
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
@@ -321,9 +321,7 @@ def writeObjectFiles(project, path):
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
-
-
-def preformMerge(proj1, proj2, output):
+def performMerge(proj1, proj2, output):
     project1 = parseProjectData(proj1)
     project2 = parseProjectData(proj2)
     projectList = [project1,project2]
@@ -332,5 +330,4 @@ def preformMerge(proj1, proj2, output):
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
 
-
-preformMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
+#performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
