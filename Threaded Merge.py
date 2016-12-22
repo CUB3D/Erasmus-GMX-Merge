@@ -20,8 +20,11 @@ def MultiMerge(folder):
                 local1 = os.path.join(folder,val[arr])
                 local2 = os.path.join(folder,val[arr+1])
                 output = os.path.join(folder,"Merge_"+str(count))
+                print(local1,local2)
                 performMerge(local1, local2, output)
                 storeArray.append(output) #### this could be any function
+                shutil.rmtree(local1)
+                shutil.rmtree(local2)
                 count += 1
             print(len(storeArray))
             if num:
@@ -31,11 +34,8 @@ def MultiMerge(folder):
                 performMerge(local1, local2, output)
                 storeArray[-1] = output ####here we would have to change functions again
                 count += 1
-        os.rename(storeArray[0],"Final")
+        os.rename(storeArray[0],os.path.join(folder,"Final"))
     else:
         print("nothing in directory")
 
-
-val = os.listdir("J:/ERASMUS/Erasmus-GMX-Merge/Examples/")
-performMerge(os.path.join("./Examples",val[0]),os.path.join("./Examples",val[1]),"./Examples/Merge")
-#MultiMerge("./Examples/")
+MultiMerge("./Examples/")

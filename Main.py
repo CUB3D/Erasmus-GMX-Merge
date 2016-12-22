@@ -91,6 +91,18 @@ def createFolderStructure(projects,startDir):
         else:
             print("Aborting")
             exit(0)
+    else:
+        os.makedirs(startDir)
+        copytree(projects[0].rootPath + "/Configs", startDir + "/Configs")
+        copy2(projects[0].rootPath + "/help.rtf", startDir)
+        for case in cases:
+            basePath = os.path.abspath(os.path.join(startDir, case))
+            for project in projects:
+                projectSubDir = os.path.join(basePath, project.projectName)
+                print("Making", projectSubDir, "directory")
+                os.makedirs(projectSubDir)
+        os.makedirs(os.path.join(startDir, "Output"))
+        os.makedirs(os.path.join(startDir, "sprites/images"))
             
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
