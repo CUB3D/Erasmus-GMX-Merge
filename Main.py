@@ -85,6 +85,18 @@ def createFolderStructure(projects,startDir):
         else:
             print("Aborting")
             exit(0)
+    else:
+        os.makedirs(startDir)
+        copytree(projects[0].rootPath + "/Configs", startDir + "/Configs")
+        copy2(projects[0].rootPath + "/help.rtf", startDir)
+        for case in cases:
+            basePath = os.path.abspath(os.path.join(startDir, case))
+            for project in projects:
+                projectSubDir = os.path.join(basePath, project.projectName)
+                print("Making", projectSubDir, "directory")
+                os.makedirs(projectSubDir)
+        os.makedirs(os.path.join(startDir, "Output"))
+        os.makedirs(os.path.join(startDir, "sprites/images"))
             
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
@@ -155,7 +167,7 @@ def generateNewProjectFiles(projects, path):
     scriptDir = os.path.join(path, "script/")
     objectDir = os.path.join(path, "objects/")
     roomDir = os.path.join(path, "rooms/")
-    
+
     for project in projects:
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
@@ -315,9 +327,7 @@ def writeObjectFiles(project, path):
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
-
-
-def preformMerge(proj1, proj2, output):
+def performMerge(proj1, proj2, output):
     project1 = parseProjectData(proj1)
     project2 = parseProjectData(proj2)
     projectList = [project1,project2]
@@ -326,5 +336,4 @@ def preformMerge(proj1, proj2, output):
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
 
-
-preformMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
+#performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
