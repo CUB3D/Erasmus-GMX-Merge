@@ -3,12 +3,6 @@ from shutil import rmtree,copy2,copytree
 from gamemaker import *
 from xmlstuff import XMLParser, XMLWriter, NXMLWriter
 
-
-def getXmlDict(file):
-    xmlDict = XMLParser(file)
-    #pprint(xmlDict)
-    return xmlDict
-
 def recursiveFileLoading_Impl(child, project, ending, callback):
     """
     Recursively scans a child node to find the names of all items in the tree
@@ -53,7 +47,7 @@ def recursiveFileLoading(project, dictKey, ending, callback):
     return content
 
 def XMLGeneratorCallback(path):
-    return getXmlDict(path)
+    return XMLParser(path)
 
 def nameChanger(projects):
     """
@@ -119,7 +113,7 @@ def parseProjectData(file):
     :param file: The path to the root diretory in the project
     """
     project = gameMakerProject(file)#Create an instance of the game maker project type using the passed file location as the root
-    project.project = getXmlDict(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
+    project.project = XMLParser(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
 
     print("Parsing configs")
     project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
@@ -204,7 +198,7 @@ def generateNewProjectFiles(projects, path):
 
 def writeRoomFiles(project, path):
     for newName, oldName in project.renamedFiles["roomNames"]:
-        roomXML = getXmlDict(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
+        roomXML = XMLParser(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
         for child in roomXML["instances"]["children"]:
             for i in range(len(child["attributes"])):
                 name = child["attributes"][i][0]
@@ -223,7 +217,7 @@ def writeRoomFiles(project, path):
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
-        activeDict = getXmlDict(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
+        activeDict = XMLParser(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
         if sprite[2] != 0:
             #activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
             activeDict["frames"]["children"][0]["content"] = os.path.join("images", sprite[0] + "_0.png")  # renames the frame content to the location of the new image
@@ -257,7 +251,7 @@ def writeObjectFiles(project, path):
     for obj in project.renamedFiles["objectNames"]:
         #This xml is too complicated to generate the standard way
         objPath = os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx")
-        objectXML = getXmlDict(objPath)
+        objectXML = XMLParser(objPath)
         for sprite in project.renamedFiles["spriteNames"]:
             if objectXML["spriteName"]["content"] == sprite[1]:
                 objectXML["spriteName"]["content"] = sprite[0]
