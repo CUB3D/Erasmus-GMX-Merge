@@ -101,23 +101,22 @@ def createFolderStructure(projects,startDir, force):
             
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
-        if not os.path.exists(baseDir +"/sprites/"+project.projectName+"/images/"):
-            os.makedirs(baseDir +"/sprites/"+project.projectName+"/images/")
-        for sprite in project.renamedFiles["spriteNames"]:
-            #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
+        projectBasePath = os.path.join(baseDir, "sprites", "images")
+        if not os.path.exists(projectBasePath):
+            os.makedirs(projectBasePath)
+        for i in range(len(project.renamedFiles["spriteNames"])):
+            newSpriteName, oldSpriteName = project.renamedFiles["spriteNames"][i]
             count = 0
+            #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
             while True:
-                try:
-                    cp = os.path.join(baseDir, "sprites/images", sprite[0] + "_" + str(count) + ".png")
-                    src = os.path.join(project.rootPath, "sprites/images", sprite[1] + "_" + str(count) + ".png")
+                src = os.path.join(project.rootPath, "sprites/images", oldSpriteName + "_" + str(count) + ".png")
+                if os.path.exists(src):
+                    cp = os.path.join(baseDir, "sprites", "images", newSpriteName + "_" + str(count) + ".png")
                     copy2(src,cp)
                     count += 1
-                except :
-                    if count == 0: #if the program wasnt event able to copy one file it means the image isnt in the desired location
-                        print("unable to copy",project.rootPath + "/sprites/images/"+sprite[1]+"_"+str(count)+".png This could be that the sprite has no image")
-                     #exits out of loop if it cant copy file, as it will have prexisted, what if the file is not not there
+                else:
                     break
-            project.renamedFiles["spriteNames"][project.renamedFiles["spriteNames"].index(sprite)] += (count,)
+            project.renamedFiles["spriteNames"][i] += (count,)
 
 def parseProjectData(file):
     """
@@ -338,4 +337,4 @@ def performMerge(proj1, proj2, output, force=False):
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
 
-#performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")
+performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScales.gmx", "./Examples/Merge")

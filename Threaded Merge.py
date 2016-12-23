@@ -21,7 +21,7 @@ def MultiMerge(folder, force=False):
             for arr in range(0,len(val)-num,2):
                 local1 = os.path.join(folder,val[arr])
                 local2 = os.path.join(folder,val[arr+1])
-                output = os.path.join(folder,"Merge_"+str(count))
+                #output = os.path.join(folder,"Merge_"+str(count))
                 output = mkdtemp()
                 print(local1,local2)
                 performMerge(local1, local2, output, force)
