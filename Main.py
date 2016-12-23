@@ -66,38 +66,27 @@ def createFolderStructure(projects,startDir, force):
     :param startDir: a location for the new merged project to be located
     :param force: If true then the old directory is removed without asking permission
     """
-    cases = ["objects","rooms","script","sprites"]
+    cases = ["objects","rooms","script"]
     print("Making merge directory")
     if os.path.exists(startDir):
         if input("Output directory already exists, remove? (y/n)").lower() == "y" or force:
             print("Removing")
             rmtree(startDir)
-            os.makedirs(startDir)
-            copytree(projects[0].rootPath + "/Configs",startDir + "/Configs")
-            copy2(projects[0].rootPath + "/help.rtf",startDir)
-            for case in cases:
-                basePath = os.path.abspath(os.path.join(startDir, case))
-                for project in projects:
-                    projectSubDir = os.path.join(basePath, project.projectName) 
-                    print("Making", projectSubDir, "directory")
-                    os.makedirs(projectSubDir)
-            os.makedirs(os.path.join(startDir, "Output"))
-            os.makedirs(os.path.join(startDir, "sprites/images"))
         else:
             print("Aborting")
             exit(0)
-    else:
-        os.makedirs(startDir)
-        copytree(projects[0].rootPath + "/Configs", startDir + "/Configs")
-        copy2(projects[0].rootPath + "/help.rtf", startDir)
-        for case in cases:
-            basePath = os.path.abspath(os.path.join(startDir, case))
-            for project in projects:
-                projectSubDir = os.path.join(basePath, project.projectName)
-                print("Making", projectSubDir, "directory")
-                os.makedirs(projectSubDir)
-        os.makedirs(os.path.join(startDir, "Output"))
-        os.makedirs(os.path.join(startDir, "sprites/images"))
+
+    os.makedirs(startDir)
+    copytree(os.path.join(projects[0].rootPath, "Configs"), os.path.join(startDir, "Configs"))
+    copy2(os.path.join(projects[0].rootPath, "help.rtf"), startDir)
+    for case in cases:
+        basePath = os.path.abspath(os.path.join(startDir, case))
+        for project in projects:
+            projectSubDir = os.path.join(basePath, project.projectName)
+            print("Making", projectSubDir, "directory")
+            os.makedirs(projectSubDir)
+    os.makedirs(os.path.join(startDir, "Output"))
+    os.makedirs(os.path.join(startDir, "sprites/images"))
             
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
