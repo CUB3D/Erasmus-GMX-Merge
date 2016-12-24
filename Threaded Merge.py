@@ -2,6 +2,26 @@ from Main import performMerge
 import os,shutil
 from math import *
 from tempfile import mkdtemp
+from threading import Thread
+
+
+class MergeThread(Thread):
+    project1 = ""
+    project2 = ""
+    output = ""
+    force = False
+    done = False
+
+    def __init__(self, project1, project2, force):
+        super(MergeThread, self).__init__()
+        self.project1 = project1
+        self.project2 = project2
+        self.output = mkdtemp()
+        self.force = force
+
+    def run(self):
+        performMerge(self.project1, self.project2, self.output, self.force)
+        self.done = True
 
 def MultiMerge(folder, force=False):
     """
@@ -11,6 +31,7 @@ def MultiMerge(folder, force=False):
     """
     val = os.listdir(folder)#gens a list of all directories in the sub directory
     if len(val):
+        threadPool = []
         storeArray = []
         while len(storeArray) != 1:
             if storeArray != []:
@@ -18,26 +39,36 @@ def MultiMerge(folder, force=False):
             storeArray = []
             num = len(val) % 2
             count = 0
-            for arr in range(0,len(val)-num,2):
-                local1 = os.path.join(folder,val[arr])
-                local2 = os.path.join(folder,val[arr+1])
-                #output = os.path.join(folder,"Merge_"+str(count))
-                output = mkdtemp()
-                print(local1,local2)
-                performMerge(local1, local2, output, force)
-                storeArray.append(output) #### this could be any function
-                shutil.rmtree(local1)
-                shutil.rmtree(local2)
+            for arr in range(0, len(val)-num, 2):
+                local1 = os.path.join(folder, val[arr])
+                local2 = os.path.join(folder, val[arr+1])
+                mergeThread = MergeThread(local1, local2, force)
+                threadPool.append(mergeThread)
+                print(local1, local2)
+                mergeThread.start()
+                print("Merge done")
+                storeArray.append(mergeThread.output) #this could be any function
+                #shutil.rmtree(local1)
+                #shutil.rmtree(local2)
                 count += 1
+            #wait for all merges to finish on this level
+            while True:
+                allDone = True
+                for thread in threadPool:
+                    if not thread.done:
+                        allDone = False
+                if allDone:
+                    break
+            threadPool.clear()
             print(len(storeArray))
             if num:
                 local1 = os.path.join(folder, val[-1])
                 local2 = os.path.join(folder, storeArray[-1])
                 output = os.path.join(folder, "Merge_" + str(count))
                 performMerge(local1, local2, output)
-                storeArray[-1] = output ####here we would have to change functions again
+                storeArray[-1] = output #here we would have to change functions again
                 count += 1
-        shutil.move(storeArray[0], os.path.join(folder,"Final"))
+        shutil.move(storeArray[0], os.path.join(folder, "Final"))
     else:
         print("nothing in directory")
 
