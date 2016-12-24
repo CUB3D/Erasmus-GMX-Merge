@@ -75,16 +75,16 @@ class gameMakerProject:
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
-            self.resolutionTable["spriteNames"].append(getBaseName(getTLName(sprite["filename"])))
+            self.resolutionTable["spriteNames"].append(getBaseName(getTLName(self.sprites[sprite]["filename"])))
 
         for object in self.objects:
-            self.resolutionTable["objectNames"].append(getBaseName(getTLName(object["filename"])))
+            self.resolutionTable["objectNames"].append(getBaseName(getTLName(self.objects[object]["filename"])))
 
         for room in self.rooms:
-            self.resolutionTable["roomNames"].append(getBaseName(getTLName(room["filename"])))
+            self.resolutionTable["roomNames"].append(getBaseName(getTLName(self.rooms[room]["filename"])))
 
         for script in self.scripts:
-            self.resolutionTable["scriptNames"].append(script.name)
+            self.resolutionTable["scriptNames"].append(self.scripts[script].name)
 
     def correctMistakes(self):
         self.renamedFiles = {
