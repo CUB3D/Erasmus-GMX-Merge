@@ -66,10 +66,10 @@ def createFolderStructure(projects,startDir, force):
     :param startDir: a location for the new merged project to be located
     :param force: If true then the old directory is removed without asking permission
     """
-    cases = ["objects","rooms","script"]
+    cases = ["objects", "rooms", "scripts"]
     print("Making merge directory")
     if os.path.exists(startDir):
-        if input("Output directory already exists, remove? (y/n)").lower() == "y" or force:
+        if force or input("Output directory already exists, remove? (y/n)").lower() == "y":
             print("Removing")
             rmtree(startDir)
         else:
@@ -153,7 +153,7 @@ def generateNewProjectFiles(projects, path):
 
     
     spriteDir = os.path.join(path, "sprites/")
-    scriptDir = os.path.join(path, "script/")
+    scriptDir = os.path.join(path, "scripts/")
     objectDir = os.path.join(path, "objects/")
     roomDir = os.path.join(path, "rooms/")
 
@@ -163,14 +163,14 @@ def generateNewProjectFiles(projects, path):
         writeObjectFiles(project, objectDir)
         writeRoomFiles(project, roomDir)
 
-        baseScriptDirectory = os.path.join(path, "script", project.projectName)
+        baseScriptDirectory = os.path.join(path, "scripts", project.projectName)
         baseObjectDirectory = os.path.join(path, "objects", project.projectName)
         baseRoomDirectory = os.path.join(path, "rooms", project.projectName)
 
         for file in os.listdir(baseScriptDirectory):
             if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
                 #No get base name because, why have a consistent format
-                relativePath = os.path.join("script", project.projectName, file)
+                relativePath = os.path.join("scripts", project.projectName, file)
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
 
@@ -231,7 +231,7 @@ def writeSpriteFiles(project, path):
 def writeGMLFiles(project, path):
     #TODO Script loading is no longer needed at the beginning
     for code in project.renamedFiles["scriptNames"]:
-        script = Script(project.rootPath + "/scripts/" + code[1] + ".gml")
+        script = Script(os.path.join(project.rootPath, "scripts", code[1] + ".gml"))
 
         for objects in project.renamedFiles["objectNames"]:
             for i in range(0, len(script.content)):
