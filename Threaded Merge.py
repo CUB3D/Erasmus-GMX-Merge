@@ -64,8 +64,8 @@ def MultiMerge(folder, force=False):
             if num:
                 local1 = os.path.join(folder, val[-1])
                 local2 = os.path.join(folder, storeArray[-1])
-                output = os.path.join(folder, "Merge_" + str(count))
-                performMerge(local1, local2, output)
+                output = mkdtemp()
+                performMerge(local1, local2, output, force)
                 storeArray[-1] = output #here we would have to change functions again
                 count += 1
         shutil.move(storeArray[0], os.path.join(folder, "Final"))
