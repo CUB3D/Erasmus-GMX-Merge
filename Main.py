@@ -84,7 +84,7 @@ def createFolderStructure(projects,startDir, force):
         for project in projects:
             projectSubDir = os.path.join(basePath, project.projectName)
             print("Making", projectSubDir, "directory")
-            os.makedirs(projectSubDir)
+            os.makedirs(projectSubDir)  
     os.makedirs(os.path.join(startDir, "Output"))
     os.makedirs(os.path.join(startDir, "sprites/images"))
             

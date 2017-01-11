@@ -4,6 +4,7 @@ from math import *
 from tempfile import mkdtemp
 from threading import Thread
 
+from random import randint
 
 class MergeThread(Thread):
     project1 = ""
@@ -12,11 +13,18 @@ class MergeThread(Thread):
     force = False
     done = False
 
-    def __init__(self, project1, project2, force):
+    def genTempFile(self,ExitDir):
+        name = os.path.join(ExitDir,"/TEMP/temp") + str(randint(1000, 99999999))
+        os.makedirs(name)
+        return name
+        
+        
+
+    def __init__(self, project1, project2, force,ExitDir):
         super(MergeThread, self).__init__()
         self.project1 = project1
         self.project2 = project2
-        self.output = mkdtemp()
+        self.output = self.genTempFile(ExitDir)#mkdtemp()
         self.force = force
 
     def run(self):
@@ -42,7 +50,7 @@ def MultiMerge(folder, force=False):
             for arr in range(0, len(val)-num, 2):
                 local1 = os.path.join(folder, val[arr])
                 local2 = os.path.join(folder, val[arr+1])
-                mergeThread = MergeThread(local1, local2, force)
+                mergeThread = MergeThread(local1, local2, force,folder)
                 threadPool.append(mergeThread)
                 print(local1, local2)
                 mergeThread.start()
