@@ -36,6 +36,8 @@ class gameMakerProject:
     scripts = []
     # List of all of the rooms in the project
     rooms = []
+    # List of all of the backgrounds in the project
+    backgrounds = []
     # List of all of the sprites in the project
     sprites = []
     # Dictionary containing all of the changed names of items in the project
@@ -50,6 +52,15 @@ class gameMakerProject:
         self.rootPath = posixpath.abspath(rootPath)
         #Names of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
+
+        project = {
+            "configs": {},
+            "objects": {},
+            "scripts": {},
+            "rooms": {},
+            "backgrounds:": {},
+            "sprites": {}
+        }
 
     def expandPath(self, path):
         """
@@ -69,9 +80,10 @@ class gameMakerProject:
         """
         self.resolutionTable = {
             "spriteNames": [],
-            "objectNames":[],
-            "roomNames":[],
-            "scriptNames":[]
+            "objectNames": [],
+            "roomNames": [],
+            "scriptNames": [],
+            "backgroundNames": []
         }
         # Append the names of the players sprites
         for sprite in self.sprites:
@@ -85,6 +97,12 @@ class gameMakerProject:
 
         for script in self.scripts:
             self.resolutionTable["scriptNames"].append(self.scripts[script].name)
+
+        for room in self.rooms:
+            self.resolutionTable["roomNames"].append(getBaseName(getTLName(self.rooms[room]["filename"])))
+
+        for background in self.backgrounds:
+            self.resolutionTable["backgroundNames"].append(getBaseName(getTLName(self.backgrounds[background]["filename"])))
 
     def correctMistakes(self):
         self.renamedFiles = {

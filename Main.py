@@ -124,6 +124,7 @@ def parseProjectData(file):
     project.project = XMLParser(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
 
     project.project["scripts"] = {} if "scripts" not in project.project else project.project["scripts"]
+    project.project["background"] = {} if "scripts" not in project.project else project.project["scripts"]
 
     print("Parsing configs")
     project.configs = recursiveFileLoading(project, "Configs", ".config.gmx", XMLGeneratorCallback)
@@ -135,6 +136,9 @@ def parseProjectData(file):
     project.rooms = recursiveFileLoading(project, "rooms", ".room.gmx", XMLGeneratorCallback)
     print("Loading sprite data")
     project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
+    print("Loading background data")
+    project.backgrounds = recursiveFileLoading(project, "background", ".backgound.gmx", XMLGeneratorCallback)
+
     project.buildResolutionTable()
     return project
 
@@ -303,6 +307,7 @@ def writeObjectFiles(project, path):
                 print("Running replace")
 
                 #Replace object references
+
                 for newName, oldName in project.renamedFiles["objectNames"]:
                     if oldName in data:
                         print("Replaced changed reference to", oldName, "in", objPath)

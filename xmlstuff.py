@@ -7,6 +7,10 @@ def _XMLGetElementDict(element):
     children = list(element)
     content = element.text
 
+    if content is None:
+        # Content should never be none
+        content = ""
+
     #print("Found element", name, "with", len(attributes), "attributes, and", len(children), "children")
 
     dict_ = {
@@ -16,8 +20,7 @@ def _XMLGetElementDict(element):
         "content": content
     }
 
-    for attrib in attributes:
-        dict_["attributes"].append(attrib)
+    dict_["attributes"].extend(attributes)
 
     for child in children:
         dict_["children"].append(_XMLGetElementDict(child))
