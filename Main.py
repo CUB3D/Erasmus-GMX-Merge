@@ -94,6 +94,7 @@ def createFolderStructure(projects,startDir, force):
             os.makedirs(projectSubDir)  
     os.makedirs(os.path.join(startDir, "Output"))
     os.makedirs(os.path.join(startDir, "sprites/images"))
+    os.makedirs(os.path.join(startDir, "background/images"))
             
 def renameSpriteImages(projects,baseDir):
     for project in projects: #iterates through all projects
@@ -137,10 +138,11 @@ def parseProjectData(file):
     print("Loading sprite data")
     project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
     print("Loading background data")
-    project.backgrounds = recursiveFileLoading(project, "background", ".backgound.gmx", XMLGeneratorCallback)
+    project.backgrounds = recursiveFileLoading(project, "backgrounds", ".background.gmx", XMLGeneratorCallback)
 
     project.buildResolutionTable()
     return project
+
 
 def generateNewProjectFiles(projects, path):
     """
@@ -163,18 +165,21 @@ def generateNewProjectFiles(projects, path):
     dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
     dict_["objects"] = {"name": "objects", "attributes": [("name", "objects")], "children":[]}
     dict_["rooms"] = {"name": "rooms", "attributes": [("name", "rooms")], "children": []}
+    dict_["backgrounds"] = {"name": "backgrounds", "attributes": [("name", "background")], "children": []}
 
     
     spriteDir = os.path.join(path, "sprites/")
     scriptDir = os.path.join(path, "scripts/")
     objectDir = os.path.join(path, "objects/")
     roomDir = os.path.join(path, "rooms/")
+    backgroundDir = os.path.join(path, "background")
 
     for project in projects:
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
         writeRoomFiles(project, roomDir)
+        writeBackgroundFiles(project, backgroundDir)
 
         baseScriptDirectory = os.path.join(path, "scripts", project.projectName)
         baseObjectDirectory = os.path.join(path, "objects", project.projectName)
@@ -200,6 +205,7 @@ def generateNewProjectFiles(projects, path):
                 dict_["rooms"]["children"].append(newDict)
 
     baseSpriteDirectory = os.path.join(path, "sprites")
+    baseBackgroundsDirectory = os.path.join(path, "background")
 
     for file in os.listdir(baseSpriteDirectory):
         if not os.path.isdir(os.path.join(baseSpriteDirectory, file)):
@@ -208,12 +214,30 @@ def generateNewProjectFiles(projects, path):
             print("Adding:", file)
             dict_["sprites"]["children"].append(newDict)
 
+    for file in os.listdir(baseBackgroundsDirectory):
+        if not os.path.isdir(os.path.join(baseBackgroundsDirectory, file)):
+            relativePath = os.path.join("background", getBaseName(file))
+            newDict = {"name": "background", "content": relativePath}
+            print("Adding:", file)
+            dict_["backgrounds"]["children"].append(newDict)
+
     NXMLWriter(newName, dict_, "assets")
+
+def writeBackgroundFiles(project, path):
+    for newBackgroundName, oldBackgroundName in project.renamedFiles["backgroundNames"]:
+        activeDict = project.backgrounds[oldBackgroundName]
+
+        activeDict["data"]["content"] = os.path.join("images", newBackgroundName + ".png")
+
+        newFile = os.path.join(path, newBackgroundName + ".background.gmx")
+        print("Generating:", newFile)
+        NXMLWriter(newFile, activeDict, "background")
 
 def writeRoomFiles(project, path):
     for newName, oldName in project.renamedFiles["roomNames"]:
         #roomXML = XMLParser(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
         roomXML = project.rooms[oldName]
+        # Rename objects referenced from scripts
         for child in roomXML["instances"]["children"]:
             for i in range(len(child["attributes"])):
                 name = child["attributes"][i][0]
@@ -223,6 +247,17 @@ def writeRoomFiles(project, path):
                     for newObjName, oldObjName in project.renamedFiles["objectNames"]:
                         if oldObjName == value:
                             child["attributes"][i] = (name, newObjName)
+
+        # Rename background references
+        for child in roomXML["backgrounds"]["children"]:
+            for i in range(len(child["attributes"])):
+                name = child["attributes"][i][0]
+                value = child["attributes"][i][1]
+                if name == "name":
+                    #TODO
+                    for newBackgroundName, oldBackgroundName in project.renamedFiles["backgroundNames"]:
+                        if oldBackgroundName == value:
+                            child["attributes"][i] = (name, newBackgroundName)
 
 
         newFile = os.path.join(path, project.projectName, newName + ".room.gmx")
