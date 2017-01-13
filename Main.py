@@ -115,6 +115,16 @@ def renameSpriteImages(projects,baseDir):
                     break
             project.renamedFiles["spriteNames"][i] += (count,)
 
+def copyBGImageFiles(project,baseDir):
+    print("copying backgrounds for",project.projectName)
+    print(project.renamedFiles["backgroundNames"])
+    for i in range(len(project.renamedFiles["backgroundNames"])):
+        src = os.path.join(project.rootPath,"background/images",project.renamedFiles["backgroundNames"][i][1]+".png")
+        cp = os.path.join(baseDir,"images",project.renamedFiles["backgroundNames"][i][0] + ".png")
+        print(src)
+        print(cp)
+        copy2(src,cp)
+
 def parseProjectData(file):
     """
     Loads the data from the project into a project object and builds
@@ -175,6 +185,7 @@ def generateNewProjectFiles(projects, path):
     backgroundDir = os.path.join(path, "background")
 
     for project in projects:
+        copyBGImageFiles(project,backgroundDir)
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
