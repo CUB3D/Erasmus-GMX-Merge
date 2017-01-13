@@ -107,14 +107,17 @@ class gameMakerProject:
     def correctMistakes(self):
         self.renamedFiles = {
             "spriteNames": [],
-            "objectNames":[],
-            "roomNames":[],
-            "scriptNames":[]
+            "objectNames": [],
+            "roomNames": [],
+            "scriptNames": []
         }
         for level in self.renamedFiles:#iterates through higher level of groups
             for name in self.resolutionTable[level]:#iterate through all objects
-                self.renamedFiles[level].append((level[:3]+"_"+self.projectName+"_"+name, name))
-                print("renamed", name, "to", level[:3]+"_"+self.projectName+"_"+name)
+                new = level[:3]+"_"+self.projectName+"_"+name
+                new = new.replace("(","_").replace(")","_").replace(" ","_")
+                self.renamedFiles[level].append((new,name))
+
+                print("renamed", name, "to", new)
             
     def __getitem__(self, name):
         """
