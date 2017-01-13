@@ -117,7 +117,6 @@ def renameSpriteImages(projects,baseDir):
 
 def copyBGImageFiles(project,baseDir):
     print("copying backgrounds for",project.projectName)
-    print(project.renamedFiles["backgroundNames"])
     for i in range(len(project.renamedFiles["backgroundNames"])):
         src = os.path.join(project.rootPath,"background/images",project.renamedFiles["backgroundNames"][i][1]+".png")
         cp = os.path.join(baseDir,"images",project.renamedFiles["backgroundNames"][i][0] + ".png")

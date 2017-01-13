@@ -121,7 +121,7 @@ class gameMakerProject:
                 print("renamed", name, "to", new)
             
 
-        pprint(self.renamedFiles)
+        #pprint(self.renamedFiles)
 
     def __getitem__(self, name):
         """

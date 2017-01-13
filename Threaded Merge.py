@@ -68,7 +68,6 @@ def MultiMerge(folder, force=False):
                 if allDone:
                     break
             threadPool.clear()
-            print(len(storeArray))
             if num:
                 local1 = os.path.join(folder, val[-1])
                 local2 = os.path.join(folder, storeArray[-1])
@@ -77,6 +76,9 @@ def MultiMerge(folder, force=False):
                 storeArray[-1] = output #here we would have to change functions again
                 count += 1
         shutil.move(storeArray[0], os.path.join(folder, "Final"))
+        renamedFile = storeArray[0].split("/")
+        os.rename(os.path.join(folder,"Final",renamedFile[-1]+".project.gmx"),os.path.join(folder,"Final/Final.project.gmx"))
+        print("Copied Completely You can find the final project in",os.path.join(folder,"Final/Final.project.gmx"))
     else:
         print("nothing in directory")
 
