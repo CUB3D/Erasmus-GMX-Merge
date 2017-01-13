@@ -53,7 +53,7 @@ class gameMakerProject:
         #Names of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
 
-        project = {
+        self.project = {
             "configs": {},
             "objects": {},
             "scripts": {},
@@ -109,16 +109,20 @@ class gameMakerProject:
             "spriteNames": [],
             "objectNames": [],
             "roomNames": [],
-            "scriptNames": []
+            "scriptNames": [],
+            "backgroundNames": []
         }
+
         for level in self.renamedFiles:#iterates through higher level of groups
             for name in self.resolutionTable[level]:#iterate through all objects
                 new = level[:3]+"_"+self.projectName+"_"+name
                 new = new.replace("(","_").replace(")","_").replace(" ","_")
                 self.renamedFiles[level].append((new,name))
-
                 print("renamed", name, "to", new)
             
+
+        pprint(self.renamedFiles)
+
     def __getitem__(self, name):
         """
         Override for dictionary access that will redirect project[name] to project.project[name]
