@@ -1,7 +1,7 @@
 from shutil import rmtree,copy2,copytree
 
 from gamemaker import *
-from xmlstuff import XMLParser, XMLWriter, NXMLWriter
+from xmlstuff import XMLParser, NXMLWriter
 
 def recursiveFileLoading_Impl(child, project, ending, callback):
     """
@@ -148,8 +148,6 @@ def parseProjectData(file):
     project.sprites = recursiveFileLoading(project, "sprites", ".sprite.gmx", XMLGeneratorCallback)
     print("Loading background data")
     project.backgrounds = recursiveFileLoading(project, "backgrounds", ".background.gmx", XMLGeneratorCallback)
-
-    project.buildResolutionTable()
     return project
 
 
@@ -277,7 +275,8 @@ def writeRoomFiles(project, path):
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
         ###parse the xml###
-        activeDict = XMLParser(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
+        activeDict = project.sprites[sprite[1]]
+        #activeDict = XMLParser(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
         if sprite[2] != 0:
             #activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
             activeDict["frames"]["children"][0]["content"] = os.path.join("images", sprite[0] + "_0.png")  # renames the frame content to the location of the new image

@@ -71,57 +71,40 @@ class gameMakerProject:
         """
         return posixpath.join(self.rootPath, path).replace("\\", "/")
 
-    def buildResolutionTable(self):
-        """
-        Retuns a list of the names of all objects in the project, This is used to find objects which have names that will cause collisions
-        so that whey can be renamed before preforming the mergei
-
-        :return: A list of all of the names of every named object in the project
-        """
-        self.resolutionTable = {
-            "spriteNames": [],
-            "objectNames": [],
-            "roomNames": [],
-            "scriptNames": [],
-            "backgroundNames": []
-        }
-        # Append the names of the players sprites
-        for sprite in self.sprites:
-            self.resolutionTable["spriteNames"].append(getBaseName(getTLName(self.sprites[sprite]["filename"])))
-
-        for object in self.objects:
-            self.resolutionTable["objectNames"].append(getBaseName(getTLName(self.objects[object]["filename"])))
-
-        for room in self.rooms:
-            self.resolutionTable["roomNames"].append(getBaseName(getTLName(self.rooms[room]["filename"])))
-
-        for script in self.scripts:
-            self.resolutionTable["scriptNames"].append(self.scripts[script].name)
-
-        for room in self.rooms:
-            self.resolutionTable["roomNames"].append(getBaseName(getTLName(self.rooms[room]["filename"])))
-
-        for background in self.backgrounds:
-            self.resolutionTable["backgroundNames"].append(getBaseName(getTLName(self.backgrounds[background]["filename"])))
-
     def correctMistakes(self):
+        cases = {
+            "spriteNames": self.sprites,
+            "objectNames": self.objects,
+            "roomNames": self.rooms,
+            "backgroundNames": self.backgrounds
+        }
+
         self.renamedFiles = {
             "spriteNames": [],
             "objectNames": [],
             "roomNames": [],
-            "scriptNames": [],
             "backgroundNames": []
         }
 
+
         for level in self.renamedFiles:#iterates through higher level of groups
-            for name in self.resolutionTable[level]:#iterate through all objects
+            lst = cases[level]
+            for obj in lst:
+                name = getBaseName(getTLName(lst[obj]["filename"]))
                 new = level[:3]+"_"+self.projectName+"_"+name
                 new = new.replace("(","_").replace(")","_").replace(" ","_")
                 self.renamedFiles[level].append((new,name))
                 print("renamed", name, "to", new)
-            
 
-        #pprint(self.renamedFiles)
+        self.renamedFiles["scriptNames"] = []
+
+        for obj in self.scripts:
+            name = obj
+            new = "scr_" + self.projectName + "_" + name
+            new = new.replace("(", "_").replace(")", "_").replace(" ", "_")
+            self.renamedFiles["scriptNames"].append((new, name))
+            print("renamed", name, "to", new)
+
 
     def __getitem__(self, name):
         """
