@@ -29,7 +29,7 @@ def _XMLGetElementDict(element):
 
 def XMLParser(file):
     with open(file, "r") as handle:
-        content = "".join([x for x in handle.readlines()])
+        content = "".join(handle.readlines())
     root = ElementTree.XML(content)
     xmlTagList = {
         "filename":file    

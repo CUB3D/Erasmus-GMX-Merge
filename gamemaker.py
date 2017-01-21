@@ -42,8 +42,6 @@ class gameMakerProject:
     sprites = []
     # Dictionary containing all of the changed names of items in the project
     renamedFiles = []
-    # Table containing the names of all elements of the project
-    resolutionTable = []
 
     def __init__(self, rootPath):
         """
