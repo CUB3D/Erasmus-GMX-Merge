@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ElementTree
 from pprint import pprint
+import io
 
 def _XMLGetElementDict(element):
     name = element.tag
@@ -55,7 +56,13 @@ def NXMLWriter(file, data, rootname):
             __NXMLWriter(data[key], root)
 
     tree = ElementTree.ElementTree(root)
-    tree.write(file, xml_declaration=True, encoding="utf-8")
+    fakeFile = io.BytesIO()
+    preface = "<!--This files was created by the spawn of the devil, do not touch or encur their wrath-->\n"
+    tree.write(fakeFile, encoding="utf-8", xml_declaration=True)
+    fakeFile.seek(0)
+    with open(file, "wb") as handle:
+        handle.write(bytes(preface, "utf-8"))
+        handle.write(fakeFile.read())
 
 def __NXMLWriter(data, rootobj, depth=1, indent="    "):
 
