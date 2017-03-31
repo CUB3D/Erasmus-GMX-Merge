@@ -48,6 +48,7 @@ class gameMakerProject:
         :param rootPath: The location of the root of the project
         """
         self.rootPath = posixpath.abspath(rootPath)
+
         #Names of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
 

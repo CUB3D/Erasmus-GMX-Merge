@@ -14,7 +14,7 @@ class MergeThread(Thread):
     done = False
 
     def genTempFile(self,ExitDir):
-        name = os.path.join(ExitDir,"/TEMP/temp") + str(randint(1000, 99999999))
+        name = os.path.join(ExitDir,"./TEMP/temp") + str(randint(1000, 99999999))
         os.makedirs(name)
         return name
         
@@ -55,7 +55,7 @@ def MultiMerge(folder, force=False):
                 print(local1, local2)
                 mergeThread.start()
                 print("Merge done")
-                storeArray.append(mergeThread.output) #this could be any function
+                storeArray.append(mergeThread.output.split("./")[-1]) #this could be any function
                 #shutil.rmtree(local1)
                 #shutil.rmtree(local2)
                 count += 1
@@ -82,4 +82,4 @@ def MultiMerge(folder, force=False):
     else:
         print("nothing in directory")
 
-MultiMerge("./Examples/", True)
+MultiMerge("./Worlds/", True)
