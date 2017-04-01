@@ -3,6 +3,7 @@ import os,shutil
 from math import *
 from tempfile import mkdtemp
 from threading import Thread
+from utils import fixPaths
 
 from random import randint
 
@@ -37,6 +38,10 @@ def MultiMerge(folder, force=False):
     :param folder: The location of all projects to be merged, must be a single directory
     :param force: If true then directories will be overwritten without asking permission
     """
+    if os.path.exists(os.path.join(folder, "Final.gmx")):
+        print("Output exists, removing")
+        shutil.rmtree(os.path.join(folder, "Final.gmx"))
+
     val = [file for file in os.listdir(folder) if file.endswith(".gmx")]#gens a list of all directories in the sub directory
     if len(val):
         threadPool = []
@@ -75,9 +80,10 @@ def MultiMerge(folder, force=False):
                 performMerge(local1, local2, output, force)
                 storeArray[-1] = output #here we would have to change functions again
                 count += 1
-        shutil.move(storeArray[0], os.path.join(folder, "Final"))
+        shutil.move(storeArray[0], os.path.join(folder, "Final.gmx"))
+        fixPaths(os.path.join(folder, "Final.gmx"))
         renamedFile = storeArray[0].split("/")
-        os.rename(os.path.join(folder,"Final",renamedFile[-1]+".project.gmx"),os.path.join(folder,"Final/Final.project.gmx"))
+        os.rename(os.path.join(folder,"Final.gmx",renamedFile[-1]+".project.gmx"),os.path.join(folder,"Final.gmx/Final.project.gmx"))
         print("Copied Completely You can find the final project in",os.path.join(folder,"Final/Final.project.gmx"))
     else:
         print("nothing in directory")

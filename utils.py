@@ -1,3 +1,5 @@
+import os
+import re
 
 def getTLName(path):
     """
@@ -17,3 +19,37 @@ def getBaseName(name):
     :return: The name of the file with the file ending removed
     """
     return name.split(".")[0]
+
+def fixPaths(file):
+    """
+    Replaces all a\b paths with a/b paths in a project
+    :param file: The folder to work with
+    """
+    allowedFiles = ["background", "sprite", "config", "project", "sprite"]
+
+    for root, dir, files in os.walk(file):
+        for file in files:
+            if file.split(".")[-2] in allowedFiles:
+                path = os.path.join(root, file)
+                if not os.path.isdir(path):
+                    print("Fixing:", path)
+                    content = ""
+                    output = ""
+                    with open(path, "r") as fileHandle:
+                        content = fileHandle.read()
+
+                    # replace any / with \ if they aren't part of a xml tag
+                    for i in range(len(content)):
+                        changed = False
+                        char = content[i]
+                        if char == "/":
+                            # check previous character and next character
+                            if i-1 >= 0 and i + 1 <= len(content):
+                                if content[i - 1] != "<" and content[i + 1] != ">":
+                                    output += "\\"
+                                    changed = True
+                        if not changed:
+                            output += char
+
+                    with open(path, "w") as fileHandle:
+                        fileHandle.write(output)
