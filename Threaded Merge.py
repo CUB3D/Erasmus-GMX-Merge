@@ -37,7 +37,7 @@ def MultiMerge(folder, force=False):
     :param folder: The location of all projects to be merged, must be a single directory
     :param force: If true then directories will be overwritten without asking permission
     """
-    val = os.listdir(folder)#gens a list of all directories in the sub directory
+    val = [file for file in os.listdir(folder) if file.endswith(".gmx")]#gens a list of all directories in the sub directory
     if len(val):
         threadPool = []
         storeArray = []

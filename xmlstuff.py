@@ -31,7 +31,9 @@ def _XMLGetElementDict(element):
 def XMLParser(file):
     with open(file, "r") as handle:
         content = "".join(handle.readlines()).strip()
+
     root = ElementTree.XML(content)
+
     xmlTagList = {
         "filename":file    
     }
@@ -58,6 +60,7 @@ def NXMLWriter(file, data, rootname):
     tree = ElementTree.ElementTree(root)
     fakeFile = io.BytesIO()
     preface = "<!--This files was created by the spawn of the devil, do not touch or encur their wrath-->\n"
+    preface = ""
     tree.write(fakeFile, encoding="utf-8", xml_declaration=True)
     fakeFile.seek(0)
     with open(file, "wb") as handle:
