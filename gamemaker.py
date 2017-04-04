@@ -91,7 +91,7 @@ class gameMakerProject:
             for obj in lst:
                 name = getBaseName(getTLName(lst[obj]["filename"]))
                 new = level[:3]+"_"+self.projectName+"_"+name
-                new = new.replace("(","_").replace(")","_").replace(" ","_").replace("-", "_")
+                new = new.replace("(","_").replace(")","_").replace(" ","_").replace("-", "_").replace("&", "_")
                 self.renamedFiles[level].append((new,name))
                 print("renamed", name, "to", new)
 
@@ -100,7 +100,7 @@ class gameMakerProject:
         for obj in self.scripts:
             name = obj
             new = "scr_" + self.projectName + "_" + name
-            new = new.replace("(", "_").replace(")", "_").replace(" ", "_").replace("-", "_")
+            new = new.replace("(", "_").replace(")", "_").replace(" ", "_").replace("-", "_").replace("&", "_")
             self.renamedFiles["scriptNames"].append((new, name))
             print("renamed", name, "to", new)
 
