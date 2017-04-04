@@ -88,4 +88,4 @@ def MultiMerge(folder, force=False):
     else:
         print("nothing in directory")
 
-MultiMerge("./Worlds/", True)
+MultiMerge("./Things for estonia/", True)
