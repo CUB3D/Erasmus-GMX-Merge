@@ -1,7 +1,7 @@
 from shutil import rmtree, copy2, copytree
 
 from gamemaker import *
-from xmlstuff import XMLParser, NXMLWriter
+from xmlstuff import XMLParser, XMLWriter
 from utils import getReplacementName
 
 
@@ -249,7 +249,7 @@ def generateNewProjectFiles(projects, path):
             print("Adding:", file)
             dict_["backgrounds"]["children"].append(newDict)
 
-    NXMLWriter(newName, dict_, "assets")
+    XMLWriter(newName, dict_, "assets")
 
 
 def writeBackgroundFiles(project, path):
@@ -260,7 +260,7 @@ def writeBackgroundFiles(project, path):
 
         newFile = os.path.join(path, newBackgroundName + ".background.gmx")
         print("Generating:", newFile)
-        NXMLWriter(newFile, activeDict, "background")
+        XMLWriter(newFile, activeDict, "background")
 
 
 def writeRoomFiles_renameObjectReferences(project, roomXML, subtag, tagname, nameTableReference):
@@ -284,7 +284,7 @@ def writeRoomFiles(project, path):
 
         newFile = os.path.join(path, project.projectName, newName + ".room.gmx")
         print("Generating", newFile)
-        NXMLWriter(newFile, roomXML, "room")
+        XMLWriter(newFile, roomXML, "room")
 
 
 def writeSpriteFiles(project, path):
@@ -299,7 +299,7 @@ def writeSpriteFiles(project, path):
                 activeDict["frames"]["children"][frame]["content"] = frameName
         newFile = os.path.join(path, sprite[0] + ".sprite.gmx")
         print("Generating", newFile)
-        NXMLWriter(newFile, activeDict, "sprite")
+        XMLWriter(newFile, activeDict, "sprite")
 
 
 def writeGMLFiles(project, path):
@@ -387,7 +387,7 @@ def writeObjectFiles(project, path):
         
         newPath = os.path.join(path, project.projectName, obj[0] + ".object.gmx")
         print("Generating", newPath)
-        NXMLWriter(newPath, objectXML, "object")
+        XMLWriter(newPath, objectXML, "object")
 
 
 def performMerge(project1, project2, output, force=False):
