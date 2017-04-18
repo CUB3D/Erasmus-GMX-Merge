@@ -399,4 +399,4 @@ def performMerge(project1, project2, output, force=False):
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
 
-performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScale.gmx", "./Examples/Merge", True)
+# performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScale.gmx", "./Examples/Merge", True)
