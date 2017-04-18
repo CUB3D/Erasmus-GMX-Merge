@@ -7,6 +7,7 @@ from utils import fixPaths
 
 from random import randint
 
+
 class MergeThread(Thread):
     project1 = ""
     project2 = ""
@@ -14,23 +15,23 @@ class MergeThread(Thread):
     force = False
     done = False
 
-    def genTempFile(self,ExitDir):
-        name = os.path.join(ExitDir,"./TEMP/temp") + str(randint(1000, 99999999))
-        os.makedirs(name)
-        return name
-        
-        
-
-    def __init__(self, project1, project2, force,ExitDir):
+    def __init__(self, project1, project2, force, ExitDir):
         super(MergeThread, self).__init__()
         self.project1 = project1
         self.project2 = project2
-        self.output = self.genTempFile(ExitDir)#mkdtemp()
+        self.output = genTempFile(ExitDir)
         self.force = force
 
     def run(self):
         performMerge(self.project1, self.project2, self.output, self.force)
         self.done = True
+
+
+def genTempFile(ExitDir):
+    name = os.path.join(ExitDir, "./TEMP/temp") + str(randint(1000, 99999999))
+    os.makedirs(name)
+    return name
+
 
 def MultiMerge(folder, force=False):
     """
@@ -42,29 +43,34 @@ def MultiMerge(folder, force=False):
         print("Output exists, removing")
         shutil.rmtree(os.path.join(folder, "Final.gmx"))
 
-    val = [file for file in os.listdir(folder) if file.endswith(".gmx")]#gens a list of all directories in the sub directory
+    # gens a list of all directories in the sub directory
+    val = [file for file in os.listdir(folder) if file.endswith(".gmx")]
+
     if len(val):
         threadPool = []
         storeArray = []
+
         while len(storeArray) != 1:
-            if storeArray != []:
+            if storeArray:
                 val = storeArray
             storeArray = []
             num = len(val) % 2
             count = 0
+
             for arr in range(0, len(val)-num, 2):
                 local1 = os.path.join(folder, val[arr])
                 local2 = os.path.join(folder, val[arr+1])
-                mergeThread = MergeThread(local1, local2, force,folder)
+                mergeThread = MergeThread(local1, local2, force, folder)
                 threadPool.append(mergeThread)
                 print(local1, local2)
                 mergeThread.start()
                 print("Merge done")
-                storeArray.append(mergeThread.output.split("./")[-1]) #this could be any function
-                #shutil.rmtree(local1)
-                #shutil.rmtree(local2)
+                # this could be any function
+                storeArray.append(mergeThread.output.split("./")[-1])
+                # shutil.rmtree(local1)
+                # shutil.rmtree(local2)
                 count += 1
-            #wait for all merges to finish on this level
+            # wait for all merges to finish on this level
             while True:
                 allDone = True
                 for thread in threadPool:
@@ -78,14 +84,16 @@ def MultiMerge(folder, force=False):
                 local2 = os.path.join(folder, storeArray[-1])
                 output = mkdtemp()
                 performMerge(local1, local2, output, force)
-                storeArray[-1] = output #here we would have to change functions again
+                storeArray[-1] = output
                 count += 1
         shutil.move(storeArray[0], os.path.join(folder, "Final.gmx"))
         fixPaths(os.path.join(folder, "Final.gmx"))
         renamedFile = storeArray[0].split("/")
-        os.rename(os.path.join(folder,"Final.gmx",renamedFile[-1]+".project.gmx"),os.path.join(folder,"Final.gmx/Final.project.gmx"))
-        print("Copied Completely You can find the final project in",os.path.join(folder,"Final/Final.project.gmx"))
+        originalName = os.path.join(folder, "Final.gmx", renamedFile[-1] + ".project.gmx")
+        newName = os.path.join(folder, "Final.gmx", "Final.project.gmx")
+        os.rename(originalName, newName)
+        print("Copied Completely You can find the final project in", os.path.join(folder, "Final/Final.project.gmx"))
     else:
         print("nothing in directory")
 
-MultiMerge("./Things for estonia/", True)
+MultiMerge("./Examples/", True)
