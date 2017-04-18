@@ -4,6 +4,7 @@ from pprint import pprint
 import posixpath
 from utils import getTLName, getBaseName
 
+
 class Script:
     # The name of the script
     name = ""
@@ -11,7 +12,7 @@ class Script:
     content = []
 
     def __init__(self, path):
-        #Get the name of the script with no file extension, as this is how the name is stored in the project files
+        # Get the name of the script with no file extension, as this is how the name is stored in the project files
         self.name = getBaseName(getTLName(path))
         with open(path, "r") as handle:
             self.content = handle.readlines()
@@ -49,7 +50,7 @@ class gameMakerProject:
         """
         self.rootPath = posixpath.abspath(rootPath)
 
-        #Names of the project is the name of the root folder with ".gmx" removed
+        # Name of the project is the name of the root folder with ".gmx" removed
         self.projectName = getBaseName(getTLName(rootPath))
 
         self.project = {
@@ -71,6 +72,10 @@ class gameMakerProject:
         return posixpath.join(self.rootPath, path).replace("\\", "/")
 
     def correctMistakes(self):
+        """
+        Removes banned characters from item names, these can occur due to some characters such as "&" being allowed in
+        project names but not in scripts as they interfere with the gml tokeniser
+        """
         cases = {
             "spriteNames": self.sprites,
             "objectNames": self.objects,
@@ -85,25 +90,32 @@ class gameMakerProject:
             "backgroundNames": []
         }
 
+        bannedCharacters = ["(", ")", " ", "-", "&"]
 
-        for level in self.renamedFiles:#iterates through higher level of groups
+        for level in self.renamedFiles:
             lst = cases[level]
+
             for obj in lst:
                 name = getBaseName(getTLName(lst[obj]["filename"]))
-                new = level[:3]+"_"+self.projectName+"_"+name
-                new = new.replace("(","_").replace(")","_").replace(" ","_").replace("-", "_").replace("&", "_")
-                self.renamedFiles[level].append((new,name))
-                print("renamed", name, "to", new)
+                new = level[:3] + "_" + self.projectName + "_" + name
+
+                for character in bannedCharacters:
+                    new = new.replace(character, "_")
+
+                self.renamedFiles[level].append((new, name))
+                print("Renamed", name, "to", new)
 
         self.renamedFiles["scriptNames"] = []
 
         for obj in self.scripts:
             name = obj
             new = "scr_" + self.projectName + "_" + name
-            new = new.replace("(", "_").replace(")", "_").replace(" ", "_").replace("-", "_").replace("&", "_")
-            self.renamedFiles["scriptNames"].append((new, name))
-            print("renamed", name, "to", new)
 
+            for character in bannedCharacters:
+                new = new.replace(character, "_")
+
+            self.renamedFiles["scriptNames"].append((new, name))
+            print("Renamed", name, "to", new)
 
     def __getitem__(self, name):
         """
