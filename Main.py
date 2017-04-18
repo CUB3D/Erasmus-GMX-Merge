@@ -297,36 +297,41 @@ def writeSpriteFiles(project, path):
         print("Generating", newFile)
         NXMLWriter(newFile, activeDict, "sprite")
 
+
 def writeGMLFiles(project, path):
     for code in project.renamedFiles["scriptNames"]:
         script = project.scripts[code[1]]
-        for objects in project.renamedFiles["objectNames"]:
-            for i in range(0, len(script.content)):
-                line = script.content[i]
-                if objects[1] in line:
-                    print("Replaced reference to", objects[1], "in", script.name)
-                    script.content[i] = line.replace(objects[1], objects[0])
-                #Replace script references
-                for newName, oldName in project.renamedFiles["scriptNames"]:
-                    if oldName in line:
-                        print("Replaced changed reference to", oldName, "in", script.name)
-                        script.content[i] = line.replace(oldName, newName)
-        path_ = path + project.projectName + "/" + code[0] + ".gml"
-        print("Generating:", path)
-        script.write(path_)
+
+        for i in range(0, len(script.content)):
+            line = script.content[i]
+            # TODO: Should this also support sprites and rooms??? (Test this)
+            # Replace references to objects
+            for objectOldName, objectNewName in project.renamedFiles["objectNames"]:
+                if objectOldName in line:
+                    print("Replaced reference to", objectOldName, "in", script.name)
+                    script.content[i] = line.replace(objectOldName, objectNewName)
+            # Replace script references (used as functions in gml)
+            for newName, oldName in project.renamedFiles["scriptNames"]:
+                if oldName in line:
+                    print("Replaced changed reference to", oldName, "in", script.name)
+                    script.content[i] = line.replace(oldName, newName)
+        newFile = os.path.join(path, project.projectName, code[0] + ".gml")
+        print("Generating:", newFile)
+        script.write(newFile)
+
 
 def writeObjectFiles(project, path):
     for obj in project.renamedFiles["objectNames"]:
-        #This xml is too complicated to generate the standard way
+        # This xml is too complicated to generate the standard way
+        # TODO: break this up into functions
         objPath = os.path.join(project.rootPath, "objects", obj[1] + ".object.gmx")
-        #objectXML = XMLParser(objPath)
         objectXML = project.objects[obj[1]]
         for sprite in project.renamedFiles["spriteNames"]:
             if objectXML["spriteName"]["content"] == sprite[1]:
                 objectXML["spriteName"]["content"] = sprite[0]
         events = objectXML["events"]
         for child in events["children"]:
-            #the children of events "event" always have one child, an "action"
+            # The children of events "event" always have one child, an "action"
 
             for i in range(len(child["attributes"])):
                 attributeName = child["attributes"][i][0]
@@ -337,8 +342,8 @@ def writeObjectFiles(project, path):
                             child["attributes"][i] = (attributeName, newName)
 
             action = child["children"][0]
-            #This appears to indicate how the event should be called
-            #0 Seems to mean a pre-made event, 2 seems to be a script
+            # This appears to indicate how the event should be called
+            # 0 Seems to mean a pre-made event, 2 seems to be a script
             exeType = "0"
             arguments = {}
             for baby in action["children"]:
@@ -357,18 +362,18 @@ def writeObjectFiles(project, path):
                     if argumentChild["name"] == "string":
                         data = argumentChild["content"]
             if exeType == "2":
-                #Ignore everything that is not a script for now
+                # Ignore everything that is not a script for now
                 print("found exetype", exeType)
                 print("Running replace")
 
-                #Replace object references
+                # Replace object references
 
                 for newName, oldName in project.renamedFiles["objectNames"]:
                     if oldName in data:
                         print("Replaced changed reference to", oldName, "in", objPath)
                         data = data.replace(oldName, newName)
 
-                #Replace script references
+                # Replace script references
                 for newName, oldName in project.renamedFiles["scriptNames"]:
                     if oldName in data:
                         print("Replaced changed reference to", oldName, "in", objPath)
@@ -386,10 +391,11 @@ def writeObjectFiles(project, path):
         print("Generating", newPath)
         NXMLWriter(newPath, objectXML, "object")
 
-def performMerge(proj1, proj2, output, force=False):
-    project1 = parseProjectData(proj1)
-    project2 = parseProjectData(proj2)
-    projectList = [project1,project2]
+
+def performMerge(project1, project2, output, force=False):
+    project1 = parseProjectData(project1)
+    project2 = parseProjectData(project2)
+    projectList = [project1, project2]
     createFolderStructure(projectList, output, force)
     nameChanger(projectList)
     renameSpriteImages(projectList, output)
