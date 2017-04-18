@@ -1,5 +1,5 @@
 import os
-import re
+
 
 def getTLName(path):
     """
@@ -20,6 +20,7 @@ def getBaseName(name):
     """
     return name.split(".")[0]
 
+
 def fixPaths(file):
     """
     Replaces all a\b paths with a/b paths in a project
@@ -27,13 +28,12 @@ def fixPaths(file):
     """
     allowedFiles = ["background", "sprite", "config", "project", "sprite"]
 
-    for root, dir, files in os.walk(file):
+    for root, directory, files in os.walk(file):
         for file in files:
             if file.split(".")[-2] in allowedFiles:
                 path = os.path.join(root, file)
                 if not os.path.isdir(path):
                     print("Fixing:", path)
-                    content = ""
                     output = ""
                     with open(path, "r") as fileHandle:
                         content = fileHandle.read()
@@ -53,3 +53,17 @@ def fixPaths(file):
 
                     with open(path, "w") as fileHandle:
                         fileHandle.write(output)
+
+
+def getReplacementName(project, originalName, nameTableReference):
+    """
+    Gets the replacement name for an item in the project
+
+    :param project: The project reference
+    :param originalName: The original name of the item 
+    :param nameTableReference: The key for the project.renamedFiles dictionary
+    :return: The new name for the item
+    """
+    for newName, oldName in project.renamedFiles[nameTableReference]:
+        if oldName == originalName:
+            return newName

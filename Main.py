@@ -2,6 +2,7 @@ from shutil import rmtree, copy2, copytree
 
 from gamemaker import *
 from xmlstuff import XMLParser, NXMLWriter
+from utils import getReplacementName
 
 
 # That exception will never happen in a situation other than a corrupt project
@@ -249,21 +250,6 @@ def generateNewProjectFiles(projects, path):
             dict_["backgrounds"]["children"].append(newDict)
 
     NXMLWriter(newName, dict_, "assets")
-
-
-# TODO: move to utils
-def getReplacementName(project, originalName, nameTableReference):
-    """
-    Gets the replacement name for an item in the project
-    
-    :param project: The project reference
-    :param originalName: The original name of the item 
-    :param nameTableReference: The key for the project.renamedFiles dictionary
-    :return: The new name for the item
-    """
-    for newName, oldName in project.renamedFiles[nameTableReference]:
-        if oldName == originalName:
-            return newName
 
 
 def writeBackgroundFiles(project, path):
