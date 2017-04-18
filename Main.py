@@ -3,12 +3,16 @@ from shutil import rmtree, copy2, copytree
 from gamemaker import *
 from xmlstuff import XMLParser, NXMLWriter
 
+
+# That exception will never happen in a situation other than a corrupt project
+# noinspection PyBroadException
 def recursiveFileLoading_Impl(child, project, ending, callback):
     """
     Recursively scans a child node to find the names of all items in the tree
     :param child: The element in the tree that acts as a directory
     :param project: the project instance
     :param ending: The file ending of that project file (e.g. ".object.gmx" for object files)
+    :param callback: Will be called with every file found and the return value will be stored mapped to the name
     :return: A list containing the names of all items in the tree
     """
     # Note this function ignores the actual names of the subdirectories which be needed later when the new project is
@@ -25,6 +29,9 @@ def recursiveFileLoading_Impl(child, project, ending, callback):
             print("ERROR: unable to load file")
     return tempStorage
 
+
+# That exception will never happen in a situation other than a corrupt project
+# noinspection PyBroadException
 def recursiveFileLoading(project, dictKey, ending, callback):
     """
     Recursively scans a xml dictionary to find the names of elements in gmx files
@@ -42,7 +49,6 @@ def recursiveFileLoading(project, dictKey, ending, callback):
             configPath = project.expandPath(child["content"]) + ending
             # If the element has children then it has no "useful" content (All whitespace)
             if len(child["children"]) > 0:
-                #recursive scan
                 print("Found subdir:", child["attributes"][0][1])
                 content.update(recursiveFileLoading_Impl(child, project, ending, callback))
             else:
@@ -53,19 +59,24 @@ def recursiveFileLoading(project, dictKey, ending, callback):
                     print("ERROR: Unable to load file")
     return content
 
+
 def XMLGeneratorCallback(path):
     return XMLParser(path)
 
+
 def nameChanger(projects):
     """
-    A method to use the names of the collision and then simply rename them using the common structure of the game maker profile
+    A method to use the names of the collision and then simply rename them,
+     using the common structure of the game maker profile
     :param projects: a list of all projects to be compiled
     """
-    #NOTE we could elect to rename all files
+    # NOTE we could elect to rename all files
     for project in projects:
-        project.correctMistakes() #changes all objects to turples
+        # changes all objects to tuples
+        project.correctMistakes()
 
-def createFolderStructure(projects,startDir, force):
+
+def createFolderStructure(projects, startDir, force):
     """
     A method to generate the folder structure in a new directory, for the final merged project
     Will create subdirectories for each of the projects being merged
@@ -77,7 +88,7 @@ def createFolderStructure(projects,startDir, force):
     print("Making merge directory")
     if os.path.exists(startDir):
         if force or input("Output directory already exists, remove? (y/n)").lower() == "y":
-            print("Removing")
+            print("Removing old output directory")
             rmtree(startDir)
         else:
             print("Aborting")
@@ -95,34 +106,40 @@ def createFolderStructure(projects,startDir, force):
     os.makedirs(os.path.join(startDir, "Output"))
     os.makedirs(os.path.join(startDir, "sprites/images"))
     os.makedirs(os.path.join(startDir, "background/images"))
-            
-def renameSpriteImages(projects,baseDir):
-    for project in projects: #iterates through all projects
+
+
+def renameSpriteImages(projects, baseDir):
+    for project in projects:
         projectBasePath = os.path.join(baseDir, "sprites", "images")
+
         if not os.path.exists(projectBasePath):
             os.makedirs(projectBasePath)
+
+        baseSpriteDir = os.path.join(project.rootPath, "sprites", "images")
+
         for i in range(len(project.renamedFiles["spriteNames"])):
             newSpriteName, oldSpriteName = project.renamedFiles["spriteNames"][i]
             count = 0
-            #sprites could have no collisions or could have collisions the only way to check is against the renamedFiles
+            # Have to check for collisions against all renamed files as they may or may not exists
             while True:
-                src = os.path.join(project.rootPath, "sprites/images", oldSpriteName + "_" + str(count) + ".png")
-                if os.path.exists(src):
-                    cp = os.path.join(baseDir, "sprites", "images", newSpriteName + "_" + str(count) + ".png")
-                    copy2(src,cp)
-                    count += 1
-                else:
+                src = os.path.join(baseSpriteDir, oldSpriteName + "_" + str(count) + ".png")
+                if not os.path.exists(src):
                     break
+                cp = os.path.join(baseSpriteDir, newSpriteName + "_" + str(count) + ".png")
+                copy2(src, cp)
+                count += 1
+
             project.renamedFiles["spriteNames"][i] += (count,)
 
-def copyBGImageFiles(project,baseDir):
-    print("copying backgrounds for",project.projectName)
-    for i in range(len(project.renamedFiles["backgroundNames"])):
-        src = os.path.join(project.rootPath,"background/images",project.renamedFiles["backgroundNames"][i][1]+".png")
-        cp = os.path.join(baseDir,"images",project.renamedFiles["backgroundNames"][i][0] + ".png")
-        print(src)
-        print(cp)
-        copy2(src,cp)
+
+def copyBGImageFiles(project, baseDir):
+    print("copying backgrounds for", project.projectName)
+    for newBackgroundName, oldBackgroundName in project.renamedFiles["backgroundNames"]:
+        src = os.path.join(project.rootPath, "background", "images", oldBackgroundName + ".png")
+        destination = os.path.join(baseDir, "images", newBackgroundName + ".png")
+        print("Copied from", src, "to", destination)
+        copy2(src, destination)
+
 
 def parseProjectData(file):
     """
@@ -156,25 +173,26 @@ def parseProjectData(file):
 def generateNewProjectFiles(projects, path):
     """
     Generates all of the XML files required by a project
-    :param project: The project to generate files for
+    :param projects: The project to generate files for
     :param path: The path to the new root directory of the project
     """
     newName = os.path.join(path, getTLName(path) + ".project.gmx")
     print("New project name:", newName)
 
-    dict_ = {}
-
-    dict_["configs"] = {"name": "Configs", "attributes": [("name", "configs")], "children": [{"name": "Config", "content": "Configs\Default"}]}
-    dict_["NewExtensions"] = {"name": "NewExtensions"}
-    dict_["sounds"] = {"name": "sounds", "content": "", "attributes": [("name", "sound")]}
-    dict_["sprites"] = {"name": "sprites", "content": "", "attributes": [("name", "sprites")], "children": []}
-    dict_["help"] = {"name":"help", "children": [{"name":"rtf", "content":"help.rtf"}]}
-    dict_["TutorialState"] = {"name": "TutorialState", "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"}, {"name": "TutorialPage", "content": "0"}]}
-    dict_["paths"] = {"name": "paths", "attributes": [("name", "paths")]}
-    dict_["scripts"] = {"name": "scripts", "attributes": [("name", "scripts")], "children": []}
-    dict_["objects"] = {"name": "objects", "attributes": [("name", "objects")], "children":[]}
-    dict_["rooms"] = {"name": "rooms", "attributes": [("name", "rooms")], "children": []}
-    dict_["backgrounds"] = {"name": "backgrounds", "attributes": [("name", "background")], "children": []}
+    dict_ = {"configs": {"name": "Configs", "attributes": [("name", "configs")],
+                         "children": [{"name": "Config", "content": "Configs\Default"}]},
+             "NewExtensions": {"name": "NewExtensions"},
+             "sounds": {"name": "sounds", "content": "", "attributes": [("name", "sound")]},
+             "sprites": {"name": "sprites", "content": "", "attributes": [("name", "sprites")], "children": []},
+             "help": {"name": "help", "children": [{"name": "rtf", "content": "help.rtf"}]},
+             "TutorialState": {"name": "TutorialState",
+                               "children": [{"name": "isTutorial", "content": "0"}, {"name": "TutorialName"},
+                                            {"name": "TutorialPage", "content": "0"}]},
+             "paths": {"name": "paths", "attributes": [("name", "paths")]},
+             "scripts": {"name": "scripts", "attributes": [("name", "scripts")], "children": []},
+             "objects": {"name": "objects", "attributes": [("name", "objects")], "children": []},
+             "rooms": {"name": "rooms", "attributes": [("name", "rooms")], "children": []},
+             "backgrounds": {"name": "backgrounds", "attributes": [("name", "background")], "children": []}}
 
     spriteDir = os.path.join(path, "sprites/")
     scriptDir = os.path.join(path, "scripts/")
@@ -183,7 +201,7 @@ def generateNewProjectFiles(projects, path):
     backgroundDir = os.path.join(path, "background")
 
     for project in projects:
-        copyBGImageFiles(project,backgroundDir)
+        copyBGImageFiles(project, backgroundDir)
         writeSpriteFiles(project, spriteDir)
         writeGMLFiles(project, scriptDir)
         writeObjectFiles(project, objectDir)
@@ -352,22 +370,16 @@ def writeObjectFiles(project, path):
                 if baby["name"] == "arguments":
                     arguments = baby
 
-            kind = ""
             data = ""
             for argument in arguments["children"]:
                 for argumentChild in argument["children"]:
-                    if argumentChild["name"] == "kind":
-                        kind = argumentChild["content"]
                     # Extend this to support all data types
                     if argumentChild["name"] == "string":
                         data = argumentChild["content"]
             if exeType == "2":
                 # Ignore everything that is not a script for now
-                print("found exetype", exeType)
-                print("Running replace")
 
                 # Replace object references
-
                 for newName, oldName in project.renamedFiles["objectNames"]:
                     if oldName in data:
                         print("Replaced changed reference to", oldName, "in", objPath)
