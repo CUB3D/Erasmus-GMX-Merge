@@ -1,4 +1,4 @@
-from shutil import rmtree,copy2,copytree
+from shutil import rmtree, copy2, copytree
 
 from gamemaker import *
 from xmlstuff import XMLParser, NXMLWriter
@@ -130,9 +130,11 @@ def parseProjectData(file):
     resolution tables from this data
     :param file: The path to the root diretory in the project
     """
-    project = gameMakerProject(file)#Create an instance of the game maker project type using the passed file location as the root
-    project.project = XMLParser(project.expandPath(project.projectName + ".project.gmx")) #concatanate ".project.gmx" using the Expand path function and then parse it using the XML parser from XMLstuff
 
+    # Create an instance of the game maker project type using the passed file location as the root
+    project = gameMakerProject(file)
+    # concatenate ".project.gmx" using the Expand path function and then parse it using the XML parser from "xmlstuff"
+    project.project = XMLParser(project.expandPath(project.projectName + ".project.gmx"))
     project.project["scripts"] = {} if "scripts" not in project.project else project.project["scripts"]
     project.project["background"] = {} if "scripts" not in project.project else project.project["scripts"]
 
@@ -174,7 +176,6 @@ def generateNewProjectFiles(projects, path):
     dict_["rooms"] = {"name": "rooms", "attributes": [("name", "rooms")], "children": []}
     dict_["backgrounds"] = {"name": "backgrounds", "attributes": [("name", "background")], "children": []}
 
-    
     spriteDir = os.path.join(path, "sprites/")
     scriptDir = os.path.join(path, "scripts/")
     objectDir = os.path.join(path, "objects/")
@@ -195,7 +196,7 @@ def generateNewProjectFiles(projects, path):
 
         for file in os.listdir(baseScriptDirectory):
             if not os.path.isdir(os.path.join(baseScriptDirectory, file)):
-                #No get base name because, why have a consistent format
+                # No get base name because, why have a consistent format
                 relativePath = os.path.join("scripts", project.projectName, file)
                 newDict = {"name": "script", "content": relativePath}
                 dict_["scripts"]["children"].append(newDict)
@@ -231,6 +232,22 @@ def generateNewProjectFiles(projects, path):
 
     NXMLWriter(newName, dict_, "assets")
 
+
+# TODO: move to utils
+def getReplacementName(project, originalName, nameTableReference):
+    """
+    Gets the replacement name for an item in the project
+    
+    :param project: The project reference
+    :param originalName: The original name of the item 
+    :param nameTableReference: The key for the project.renamedFiles dictionary
+    :return: The new name for the item
+    """
+    for newName, oldName in project.renamedFiles[nameTableReference]:
+        if oldName == originalName:
+            return newName
+
+
 def writeBackgroundFiles(project, path):
     for newBackgroundName, oldBackgroundName in project.renamedFiles["backgroundNames"]:
         activeDict = project.backgrounds[oldBackgroundName]
@@ -241,50 +258,44 @@ def writeBackgroundFiles(project, path):
         print("Generating:", newFile)
         NXMLWriter(newFile, activeDict, "background")
 
+
+def writeRoomFiles_renameObjectReferences(project, roomXML, subtag, tagname, nameTableReference):
+    for child in roomXML[subtag]["children"]:
+        for i in range(len(child["attributes"])):
+            name = child["attributes"][i][0]
+            value = child["attributes"][i][1]
+            # If the value is blank then it is an item that has no name (Seems to be possible for backgrounds sometimes)
+            if name == tagname and value != "":
+                child["attributes"][i] = (name, getReplacementName(project, value, nameTableReference))
+
+
 def writeRoomFiles(project, path):
     for newName, oldName in project.renamedFiles["roomNames"]:
-        #roomXML = XMLParser(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
+        # roomXML = XMLParser(os.path.join(project.rootPath, "rooms", oldName + ".room.gmx"))
         roomXML = project.rooms[oldName]
         # Rename objects referenced from scripts
-        for child in roomXML["instances"]["children"]:
-            for i in range(len(child["attributes"])):
-                name = child["attributes"][i][0]
-                value = child["attributes"][i][1]
-                if name == "objName":
-                    #TODO
-                    for newObjName, oldObjName in project.renamedFiles["objectNames"]:
-                        if oldObjName == value:
-                            child["attributes"][i] = (name, newObjName)
 
-        # Rename background references
-        for child in roomXML["backgrounds"]["children"]:
-            for i in range(len(child["attributes"])):
-                name = child["attributes"][i][0]
-                value = child["attributes"][i][1]
-                if name == "name":
-                    #TODO
-                    for newBackgroundName, oldBackgroundName in project.renamedFiles["backgroundNames"]:
-                        if oldBackgroundName == value:
-                            child["attributes"][i] = (name, newBackgroundName)
-
+        writeRoomFiles_renameObjectReferences(project, roomXML, "instances", "objName", "objectNames")
+        writeRoomFiles_renameObjectReferences(project, roomXML, "backgrounds", "name", "backgroundNames")
 
         newFile = os.path.join(path, project.projectName, newName + ".room.gmx")
         print("Generating", newFile)
         NXMLWriter(newFile, roomXML, "room")
 
+
 def writeSpriteFiles(project, path):
     for sprite in project.renamedFiles["spriteNames"]:
-        ###parse the xml###
         activeDict = project.sprites[sprite[1]]
-        #activeDict = XMLParser(os.path.join(project.rootPath, "sprites", sprite[1] + ".sprite.gmx"))#parses the xml from the original
         if sprite[2] != 0:
-            #activeDict["frames"]["children"][0]["content"] = project.projectName +"\images\\" + sprite[0]+"_0.png" #renames the frame content to the location of the new image
-            activeDict["frames"]["children"][0]["content"] = os.path.join("images", sprite[0] + "_0.png")  # renames the frame content to the location of the new image
-            for frame in range(1,sprite[2] -1):
-                activeDict["frames"]["children"][frame]["content"] = os.path.join("images", sprite[0]+"_"+str(frame)+".png") # appends a new frame
-        newFile = path +"/"+ sprite[0] +".sprite.gmx" #renames the file to the new location
+            # renames the frame content to the location of the new image
+            activeDict["frames"]["children"][0]["content"] = os.path.join("images", sprite[0] + "_0.png")
+            for frame in range(1, sprite[2] - 1):
+                # appends a new frame
+                frameName = os.path.join("images", sprite[0] + "_" + str(frame) + ".png")
+                activeDict["frames"]["children"][frame]["content"] = frameName
+        newFile = os.path.join(path, sprite[0] + ".sprite.gmx")
         print("Generating", newFile)
-        NXMLWriter(newFile,activeDict,"sprite")
+        NXMLWriter(newFile, activeDict, "sprite")
 
 def writeGMLFiles(project, path):
     for code in project.renamedFiles["scriptNames"]:
@@ -384,4 +395,4 @@ def performMerge(proj1, proj2, output, force=False):
     renameSpriteImages(projectList, output)
     generateNewProjectFiles(projectList, output)
 
-#performMerge("./Examples/Erasmus.gmx", "./Examples/stepping stones(takasias castle).gmx", "./Examples/Merge",True)
+performMerge("./Examples/Erasmus.gmx", "./Examples/FireWorldScale.gmx", "./Examples/Merge", True)
