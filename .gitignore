@@ -1,6 +1,7 @@
 .idea/workspace.xml
 __pycache__/*
 Examples/*
+Worlds/*
 ExampleStore/*
 .idea
 *~
