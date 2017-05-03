@@ -86,7 +86,7 @@ def MultiMerge(folder, force=False):
                 performMerge(local1, local2, output, force)
                 storeArray[-1] = output
                 count += 1
-        shutil.move(storeArray[0], os.path.join(folder, "Final.gmx"))
+        shutil.move(os.path.join(folder, storeArray[0]), os.path.join(folder, "Final.gmx"))
         fixPaths(os.path.join(folder, "Final.gmx"))
         renamedFile = storeArray[0].split("/")
         originalName = os.path.join(folder, "Final.gmx", renamedFile[-1] + ".project.gmx")
@@ -96,4 +96,4 @@ def MultiMerge(folder, force=False):
     else:
         print("nothing in directory")
 
-MultiMerge("./Examples/", True)
+MultiMerge("./worlds-build/", True)

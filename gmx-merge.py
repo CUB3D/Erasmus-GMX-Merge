@@ -125,7 +125,7 @@ waitForAnyKey()
 yCoord -= 1
 putString(" " * 80)
 putString("Checking projects...")
-runProjectTest(checkProjects, "./Worlds")
+runProjectTest(checkProjects, "./worlds-build")
 putString("Starting project merge in 5 seconds")
 putString("Press Ctrl-C to cancel")
 
